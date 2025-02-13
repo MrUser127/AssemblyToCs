@@ -26,7 +26,7 @@ internal class Program
             {
                 new LocalVariable("param1", new RegisterOperand(1), dataTypeManager.IntType),
                 new LocalVariable("param2", new StackVariableOperand(0x3), dataTypeManager.IntType),
-            });
+            }, new LocalVariable("", new RegisterOperand(0), dataTypeManager.IntType), dataTypeManager);
 
         Console.WriteLine(function);
     }
