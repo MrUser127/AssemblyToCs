@@ -10,9 +10,13 @@ public enum ILOpCode
     Load,
     Store,
     Return,
+    Push,
+    Pop,
+    Call,
     Add,
     Subtract,
     Multiply,
     Divide,
-    Modulus
+    Modulus,
+    Xor
 }
