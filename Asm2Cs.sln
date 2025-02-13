@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asm2Cs", "Asm2Cs\Asm2Cs.csproj", "{06FC3DAD-450A-B210-0505-D6314DCA85EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asm2Cs.CommandLine", "Asm2Cs.CommandLine\Asm2Cs.CommandLine.csproj", "{B191B2D4-88EE-B58B-0512-222449056200}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{06FC3DAD-450A-B210-0505-D6314DCA85EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06FC3DAD-450A-B210-0505-D6314DCA85EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06FC3DAD-450A-B210-0505-D6314DCA85EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06FC3DAD-450A-B210-0505-D6314DCA85EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B191B2D4-88EE-B58B-0512-222449056200}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B191B2D4-88EE-B58B-0512-222449056200}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B191B2D4-88EE-B58B-0512-222449056200}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B191B2D4-88EE-B58B-0512-222449056200}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {78125B54-CE0B-4206-9DDF-241049473B91}
+	EndGlobalSection
+EndGlobal
