@@ -33,5 +33,5 @@ public class LocalVariable
         Type = type;
     }
 
-    public override string ToString() => $"{Type} {Name} <{Location}>";
+    public override string ToString() => $"{Type.Name} {Name} <{Location}>";
 }

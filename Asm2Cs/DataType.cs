@@ -1,4 +1,6 @@
-﻿namespace Asm2Cs;
+﻿using System.Text;
+
+namespace Asm2Cs;
 
 /// <summary>
 /// Data type.
@@ -11,13 +13,40 @@ public class DataType
     public string Name;
 
     /// <summary>
+    /// Fields.
+    /// </summary>
+    public List<Field> Fields;
+
+    /// <summary>
+    /// Core type. int, string, etc.
+    /// </summary>
+    public CoreDataType CoreType;
+
+    /// <summary>
     /// Creates a new data type.
     /// </summary>
     /// <param name="name">Name of the type.</param>
-    public DataType(string name)
+    /// <param name="fields">Fields.</param>
+    /// <param name="coreType">Core type. int, string, etc.</param>
+    public DataType(string name, List<Field>? fields, CoreDataType coreType)
     {
         Name = name;
+        Fields = fields ?? new List<Field>();
+        CoreType = coreType;
     }
 
-    public override string ToString() => Name;
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.AppendLine(Name);
+        sb.AppendLine("Fields:");
+
+        foreach (var field in Fields)
+        {
+            sb.AppendLine(field.ToString());
+        }
+
+        return sb.ToString();
+    }
 }

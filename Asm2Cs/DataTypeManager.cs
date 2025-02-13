@@ -6,15 +6,15 @@ public class DataTypeManager
 
     public DataType IntType;
     public DataType FloatType;
-    public DataType StringType;
     public DataType BoolType;
+    public DataType StringType;
 
     public DataTypeManager()
     {
-        FloatType = new DataType("float");
-        IntType = new DataType("int");
-        BoolType = new DataType("bool");
-        StringType = new DataType("string");
+        IntType = new DataType("int", null, CoreDataType.Int);
+        FloatType = new DataType("float", null, CoreDataType.Float);
+        BoolType = new DataType("bool", null, CoreDataType.Bool);
+        StringType = new DataType("string", null, CoreDataType.String);
 
         AllTypes = new List<DataType>()
         {
