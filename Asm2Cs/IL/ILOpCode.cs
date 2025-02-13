@@ -6,12 +6,13 @@
 public enum ILOpCode
 {
     Unknown,
+    Move,
+    Load,
+    Store,
+    Return,
     Add,
     Subtract,
     Multiply,
     Divide,
-    Modulus,
-    Move,
-    Load,
-    Store
+    Modulus
 }
