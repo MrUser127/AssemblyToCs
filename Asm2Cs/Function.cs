@@ -1,11 +1,9 @@
-﻿using System.Text;
-
-namespace Asm2Cs;
+﻿namespace Asm2Cs;
 
 /// <summary>
-/// All data for a function.
+/// All data for a function, implements operand for function reference in call instruction.
 /// </summary>
-public class Function
+public class Function : IILOperand
 {
     /// <summary>
     /// Name of the function.
@@ -37,6 +35,8 @@ public class Function
     /// </summary>
     public DataTypeManager TypeManager;
 
+    public OperandType OperandType => OperandType.Function;
+
     /// <summary>
     /// Creates a new function.
     /// </summary>
@@ -56,28 +56,5 @@ public class Function
         ReturnValue = returnValue;
     }
 
-    public override string ToString()
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.AppendLine(Name);
-
-        sb.AppendLine();
-        sb.AppendLine("Parameters:");
-
-        foreach (var parameter in Parameters)
-        {
-            sb.AppendLine(parameter.ToString());
-        }
-
-        sb.AppendLine();
-        sb.AppendLine("Instructions:");
-
-        foreach (var instruction in Instructions)
-        {
-            sb.AppendLine(instruction.ToString());
-        }
-
-        return sb.ToString();
-    }
+    public override string ToString() => $"{ReturnValue} {Name}({string.Join(", ", Parameters)})";
 }

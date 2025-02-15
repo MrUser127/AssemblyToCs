@@ -9,5 +9,9 @@
     <ItemGroup>
         <ProjectReference Include="..\Asm2Cs\Asm2Cs.csproj"/>
     </ItemGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="DotNetGraph" Version="3.2.0" />
+    </ItemGroup>
 
 </Project>

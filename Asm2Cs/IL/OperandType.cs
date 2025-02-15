@@ -6,9 +6,11 @@
 public enum OperandType
 {
     InstructionResult,
+    BranchTarget,
     Register,
     StackVariable,
     GlobalVariable,
+    Function,
     Integer,
     Float,
     String

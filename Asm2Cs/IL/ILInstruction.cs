@@ -20,6 +20,11 @@ public class ILInstruction : IILOperand
     /// </summary>
     public IILOperand[] Operands;
 
+    /// <summary>
+    /// Is this instruction the entry point of a block?
+    /// </summary>
+    public bool IsBlockStart;
+
     public OperandType OperandType => OperandType.InstructionResult;
 
     /// <summary>

@@ -5,7 +5,7 @@
 /// </summary>
 public class GlobalVariableOperand : IILOperand
 {
-    public OperandType OperandType => OperandType.Float;
+    public OperandType OperandType => OperandType.GlobalVariable;
 
     /// <summary>
     /// Name of the variable.
