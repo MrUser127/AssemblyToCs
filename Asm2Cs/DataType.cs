@@ -22,6 +22,11 @@ public class DataType
     /// </summary>
     public CoreDataType CoreType;
 
+    public static DataType Int = new DataType("int", new List<Field>(), CoreDataType.Int);
+    public static DataType Float = new DataType("float", new List<Field>(), CoreDataType.Float);
+    public static DataType Bool = new DataType("bool", new List<Field>(), CoreDataType.Bool);
+    public static DataType String = new DataType("string", new List<Field>(), CoreDataType.String);
+
     /// <summary>
     /// Creates a new data type.
     /// </summary>
@@ -37,16 +42,19 @@ public class DataType
 
     public override string ToString()
     {
+        if (CoreType != CoreDataType.Struct && CoreType != CoreDataType.Enum)
+            return Name;
+
         StringBuilder sb = new StringBuilder();
 
+        sb.Append(CoreType == CoreDataType.Struct ? "struct " : "enum ");
         sb.AppendLine(Name);
-        sb.AppendLine("Fields:");
+        sb.AppendLine("{");
 
         foreach (var field in Fields)
-        {
-            sb.AppendLine(field.ToString());
-        }
+            sb.AppendLine("\t" + field);
 
+        sb.AppendLine("}");
         return sb.ToString();
     }
 }

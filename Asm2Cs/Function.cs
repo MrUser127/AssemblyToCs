@@ -37,11 +37,6 @@ public class Function : IILOperand
     /// </summary>
     public List<Comment> Comments = new List<Comment>();
 
-    /// <summary>
-    /// Data type manager, needed for locals.
-    /// </summary>
-    public DataTypeManager TypeManager;
-
     public OperandType OperandType => OperandType.Function;
 
     /// <summary>
@@ -55,16 +50,14 @@ public class Function : IILOperand
     /// <param name="name">Name of the function.</param>
     /// <param name="instructions">Instructions that make up the function.</param>
     /// <param name="parameters">Parameters.</param>
-    /// <param name="typeManager">Data type manager, needed for locals.</param>
     /// <param name="returnValue">Return value.</param>
     public Function(string name, List<ILInstruction> instructions, List<LocalVariable> parameters,
-        LocalVariable returnValue, DataTypeManager typeManager)
+        LocalVariable returnValue)
     {
         Name = name;
         Instructions = instructions;
         Parameters = parameters;
         Locals = parameters;
-        TypeManager = typeManager;
         ReturnValue = returnValue;
     }
 

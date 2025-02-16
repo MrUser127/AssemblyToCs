@@ -16,15 +16,22 @@ public class Field
     public DataType Type;
 
     /// <summary>
+    /// If this is a field in enum, this is its value.
+    /// </summary>
+    public int? EnumValue;
+
+    /// <summary>
     /// Creates a new field.
     /// </summary>
     /// <param name="name">Name of the field.</param>
     /// <param name="type">Type of the field.</param>
-    public Field(string name, DataType type)
+    /// <param name="enumValue">If this is a field in enum, this is its value.</param>
+    public Field(string name, DataType type, int? enumValue = null)
     {
         Name = name;
         Type = type;
+        EnumValue = enumValue;
     }
 
-    public override string ToString() => $"{Type} {Name};";
+    public override string ToString() => EnumValue == null ? $"{Type} {Name};" : $"{Type} {Name} = {EnumValue};";
 }

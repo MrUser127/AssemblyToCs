@@ -11,8 +11,6 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        DataTypeManager dataTypeManager = new DataTypeManager();
-
         List<ILInstruction> instructions = new List<ILInstruction>();
 
         instructions.Add(new ILInstruction(0, ILOpCode.Move,
@@ -37,9 +35,9 @@ internal class Program
         Function function = new Function("SomeFunction", instructions,
             new List<LocalVariable>()
             {
-                new LocalVariable("param1", new RegisterOperand(1), dataTypeManager.IntType),
-                new LocalVariable("param2", new StackVariableOperand(0x3), dataTypeManager.IntType),
-            }, new LocalVariable("<return>", new RegisterOperand(0), dataTypeManager.IntType), dataTypeManager);
+                new LocalVariable("param1", new RegisterOperand(1), DataType.Int),
+                new LocalVariable("param2", new StackVariableOperand(0x3), DataType.Int),
+            }, new LocalVariable("<return>", new RegisterOperand(0), DataType.Int));
 
         function.AddComment("Test comment", Comment.CommentType.Warning);
         function.Analyze();
