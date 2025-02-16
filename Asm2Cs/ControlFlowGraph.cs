@@ -1,15 +1,30 @@
 ﻿namespace Asm2Cs;
 
+/// <summary>
+/// Control flow graph.
+/// </summary>
 public class ControlFlowGraph
 {
+    /// <summary>
+    /// All blocks that make up the graph.
+    /// </summary>
     public List<Block> Blocks;
 
+    /// <summary>
+    /// Entry point of the graph.
+    /// </summary>
     public Block EntryBlock;
 
-    public ControlFlowGraph(List<ILInstruction> instructions) => Rebuild(instructions);
+    /// <summary>
+    /// Creates a new control flow graph.
+    /// </summary>
+    /// <param name="function">The function.</param>
+    public ControlFlowGraph(Function function) => Build(function);
 
-    private void Rebuild(List<ILInstruction> instructions)
+    private void Build(Function function)
     {
+        var instructions = function.Instructions;
+
         Blocks = new List<Block>();
 
         if (instructions.Count == 0)
@@ -26,14 +41,18 @@ public class ControlFlowGraph
 
         foreach (var instruction in instructions)
         {
-            if (instruction.OpCode is ILOpCode.Jump or ILOpCode.ConditionalJump or ILOpCode.IndirectJump)
-            {
-                if (instruction.OpCode == ILOpCode.IndirectJump)
-                    throw new NotImplementedException("Indirect jumps are not implemented");
+            if (instruction.OpCode is not (ILOpCode.Jump or ILOpCode.ConditionalJump or ILOpCode.IndirectJump))
+                continue;
 
-                var target = GetBranchTarget(instruction);
-                ((BranchTarget)instruction.Operands[0]).Block = GetBlockByInstruction(target);
+            if (instruction.OpCode == ILOpCode.IndirectJump)
+            {
+                function.AddComment($"Indirect jumps are not implemented: {instruction}", Comment.CommentType.Warning,
+                    instruction);
+                continue;
             }
+
+            var target = GetBranchTarget(instruction);
+            ((BranchTarget)instruction.Operands[0]).Block = GetBlockByInstruction(target);
         }
 
         if (Blocks.Count <= 0) return;
@@ -71,7 +90,7 @@ public class ControlFlowGraph
                     blockEnds.Add(GetBranchTarget(instruction));
                     break;
                 case ILOpCode.IndirectJump:
-                    throw new NotImplementedException("Indirect jumps are not implemented");
+                    break; // Rebuild() adds warning about this
                 case ILOpCode.Return:
                     break;
                 default:

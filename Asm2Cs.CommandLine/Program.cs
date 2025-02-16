@@ -22,7 +22,7 @@ internal class Program
                 new FloatOperand(0.5f)
             )
         ));
-        instructions.Add(new ILInstruction(2, ILOpCode.Unknown));
+        instructions.Add(new ILInstruction(2, ILOpCode.Unknown, new StringOperand("some unknown instruction")));
         instructions.Add(new ILInstruction(3, ILOpCode.Call,
             new GlobalVariableOperand("SomeFunction"))
         );
@@ -41,8 +41,11 @@ internal class Program
                 new LocalVariable("param2", new StackVariableOperand(0x3), dataTypeManager.IntType),
             }, new LocalVariable("<return>", new RegisterOperand(0), dataTypeManager.IntType), dataTypeManager);
 
-        ControlFlowGraph graph = new ControlFlowGraph(instructions);
-        WriteGraph(graph, Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "ControlFlowGraph.dot"));
+        function.AddComment("Test comment", Comment.CommentType.Warning);
+        function.Analyze();
+
+        WriteGraph(function.ControlFlowGraph!,
+            Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "ControlFlowGraph.dot"));
 
         Console.WriteLine(function);
     }
