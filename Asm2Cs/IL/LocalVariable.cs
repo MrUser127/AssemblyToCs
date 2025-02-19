@@ -1,4 +1,4 @@
-﻿namespace Asm2Cs;
+﻿namespace Asm2Cs.IL;
 
 /// <summary>
 /// Local variable.
@@ -33,5 +33,5 @@ public class LocalVariable
         Type = type;
     }
 
-    public override string ToString() => $"{Type.Name} {Name} @{Location}";
+    public override string ToString() => $"{Type.Name} {Name} /*{Location}*/";
 }

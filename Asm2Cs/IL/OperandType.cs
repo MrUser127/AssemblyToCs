@@ -1,4 +1,4 @@
-﻿namespace Asm2Cs;
+﻿namespace Asm2Cs.IL;
 
 /// <summary>
 /// All operand types.
@@ -11,7 +11,7 @@ public enum OperandType
     StackVariable,
     GlobalVariable,
     Function,
-    Integer,
+    Int,
     Float,
     String
 }

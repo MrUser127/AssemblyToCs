@@ -1,4 +1,6 @@
-﻿namespace Asm2Cs;
+﻿using Asm2Cs.IL;
+
+namespace Asm2Cs;
 
 /// <summary>
 /// Control flow graph.
@@ -19,7 +21,13 @@ public class ControlFlowGraph
     /// Creates a new control flow graph.
     /// </summary>
     /// <param name="function">The function.</param>
-    public ControlFlowGraph(Function function) => Build(function);
+    public ControlFlowGraph(Function function)
+    {
+        Blocks = new List<Block>();
+        EntryBlock = new Block();
+
+        Build(function);
+    }
 
     private void Build(Function function)
     {
@@ -46,8 +54,7 @@ public class ControlFlowGraph
 
             if (instruction.OpCode == ILOpCode.IndirectJump)
             {
-                function.AddComment($"Indirect jumps are not implemented: {instruction}", Comment.CommentType.Warning,
-                    instruction);
+                function.AddComment($"Indirect jumps are not implemented: {instruction}", instruction);
                 continue;
             }
 

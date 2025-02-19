@@ -1,11 +1,11 @@
-﻿namespace Asm2Cs;
+﻿namespace Asm2Cs.IL;
 
 /// <summary>
 /// Integer operand.
 /// </summary>
-public class IntegerOperand : IILOperand
+public class IntOperand : IILOperand
 {
-    public OperandType OperandType => OperandType.Integer;
+    public OperandType OperandType => OperandType.Int;
 
     /// <summary>
     /// The value.
@@ -16,7 +16,7 @@ public class IntegerOperand : IILOperand
     /// Creates a new int operand.
     /// </summary>
     /// <param name="value">The value.</param>
-    public IntegerOperand(int value)
+    public IntOperand(int value)
     {
         Value = value;
     }

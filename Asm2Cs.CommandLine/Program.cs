@@ -4,6 +4,7 @@ using System.IO;
 using DotNetGraph.Compilation;
 using DotNetGraph.Core;
 using DotNetGraph.Extensions;
+using Asm2Cs.IL;
 
 namespace Asm2Cs.CommandLine;
 
@@ -16,7 +17,7 @@ internal class Program
         instructions.Add(new ILInstruction(0, ILOpCode.Move,
             new GlobalVariableOperand("something"),
             new ILInstruction(1, ILOpCode.Add,
-                new IntegerOperand(0x1),
+                new IntOperand(0x1),
                 new FloatOperand(0.5f)
             )
         ));
@@ -37,15 +38,18 @@ internal class Program
             {
                 new LocalVariable("param1", new RegisterOperand(1), DataType.Int),
                 new LocalVariable("param2", new StackVariableOperand(0x3), DataType.Int),
-            }, new LocalVariable("<return>", new RegisterOperand(0), DataType.Int));
+            }, DataType.Int);
 
-        function.AddComment("Test comment", Comment.CommentType.Warning);
-        function.Analyze();
+        var decompiler = new Decompiler();
 
-        WriteGraph(function.ControlFlowGraph!,
-            Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "ControlFlowGraph.dot"));
+        decompiler.InfoLog += (message, source) => Console.WriteLine($"{source} : {message}");
+        decompiler.WarnLog += (message, source) => Console.WriteLine($"{source} [Warn] : {message}");
+        decompiler.ErrorLog += (message, source) => Console.WriteLine($"{source} [Error] : {message}");
 
-        Console.WriteLine(function);
+        var code = decompiler.DecompileFunctionAsString(function);
+
+        Console.WriteLine();
+        Console.WriteLine(code);
     }
 
     private static void WriteGraph(ControlFlowGraph graph, string path)

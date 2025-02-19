@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿using Asm2Cs.IL;
 
 namespace Asm2Cs;
 
@@ -28,9 +28,9 @@ public class Function : IILOperand
     public List<LocalVariable> Locals;
 
     /// <summary>
-    /// Return value.
+    /// Return type.
     /// </summary>
-    public LocalVariable ReturnValue;
+    public DataType ReturnType;
 
     /// <summary>
     /// Comments.
@@ -40,59 +40,34 @@ public class Function : IILOperand
     public OperandType OperandType => OperandType.Function;
 
     /// <summary>
-    /// The control flow graph. Null if not built yet.
-    /// </summary>
-    public ControlFlowGraph? ControlFlowGraph;
-
-    /// <summary>
     /// Creates a new function.
     /// </summary>
     /// <param name="name">Name of the function.</param>
     /// <param name="instructions">Instructions that make up the function.</param>
     /// <param name="parameters">Parameters.</param>
-    /// <param name="returnValue">Return value.</param>
-    public Function(string name, List<ILInstruction> instructions, List<LocalVariable> parameters,
-        LocalVariable returnValue)
+    /// <param name="returnType">Return type.</param>
+    public Function(string name, List<ILInstruction> instructions, List<LocalVariable> parameters, DataType returnType)
     {
         Name = name;
         Instructions = instructions;
         Parameters = parameters;
         Locals = parameters;
-        ReturnValue = returnValue;
+        ReturnType = returnType;
     }
-
-    /// <summary>
-    /// Fully analyzes the function.
-    /// </summary>
-    public void Analyze()
-    {
-        BuildControlFlowGraph();
-    }
-
-    /// <summary>
-    /// Builds control flow graph for the function.
-    /// </summary>
-    public void BuildControlFlowGraph() => ControlFlowGraph = new ControlFlowGraph(this);
 
     /// <summary>
     /// Adds a comment to the function.
     /// </summary>
     /// <param name="text">Comment text.</param>
-    /// <param name="type">Type of the comment.</param>
     /// <param name="instruction">Where should this comment be? leave null for header.</param>
-    public void AddComment(string text, Comment.CommentType type, ILInstruction? instruction = null)
-    {
-        Comments.Add(new Comment(text, type, instruction));
-    }
+    public void AddComment(string text, ILInstruction? instruction = null) =>
+        Comments.Add(new Comment(text, instruction));
 
-    public override string ToString()
-    {
-        StringBuilder sb = new StringBuilder();
+    /// <summary>
+    /// Prints the function signature.
+    /// </summary>
+    /// <returns>The function signature.</returns>
+    public string PrintSignature() => $"{ReturnType.Name} {Name}({string.Join(", ", Parameters)})";
 
-        foreach (var comment in Comments.Where(comment => comment.Instruction == null))
-            sb.AppendLine(comment.ToString());
-
-        sb.Append($"{ReturnValue} {Name}({string.Join(", ", Parameters)})");
-        return sb.ToString();
-    }
+    public override string ToString() => PrintSignature();
 }

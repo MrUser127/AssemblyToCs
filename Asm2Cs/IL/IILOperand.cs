@@ -1,4 +1,4 @@
-﻿namespace Asm2Cs;
+﻿namespace Asm2Cs.IL;
 
 /// <summary>
 /// Intermediate language operand.

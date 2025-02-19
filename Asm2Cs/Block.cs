@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿using Asm2Cs.IL;
 
 namespace Asm2Cs;
 
@@ -33,13 +33,5 @@ public class Block
     /// <param name="instruction">The instruction.</param>
     public void AddInstruction(ILInstruction instruction) => Instructions.Add(instruction);
 
-    public override string ToString()
-    {
-        var sb = new StringBuilder();
-
-        foreach (var instruction in Instructions)
-            sb.AppendLine(instruction.ToString());
-
-        return sb.ToString();
-    }
+    public override string ToString() => string.Join(Environment.NewLine, Instructions);
 }
