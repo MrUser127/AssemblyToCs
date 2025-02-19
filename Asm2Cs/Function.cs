@@ -3,9 +3,9 @@
 namespace Asm2Cs;
 
 /// <summary>
-/// All data for a function, implements operand for function reference in call instruction.
+/// A single function.
 /// </summary>
-public class Function : IILOperand
+public class Function
 {
     /// <summary>
     /// Name of the function.
@@ -36,8 +36,6 @@ public class Function : IILOperand
     /// Comments.
     /// </summary>
     public List<Comment> Comments = new List<Comment>();
-
-    public OperandType OperandType => OperandType.Function;
 
     /// <summary>
     /// Creates a new function.

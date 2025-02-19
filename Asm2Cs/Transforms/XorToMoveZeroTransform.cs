@@ -30,6 +30,6 @@ public class XorToMoveZeroTransform : ITransform
             instructionsTransformed++;
         }
 
-        decompiler.LogInfo($"{instructionsTransformed} xor reg, reg instructions replaced with move reg, 0");
+        decompiler.LogInfo($"{instructionsTransformed} instructions replaced with move", "xor to move zero transform");
     }
 }

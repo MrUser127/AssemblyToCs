@@ -12,12 +12,24 @@ public enum ILOpCode
     Move,
     Load,
     Store,
+
+    /// <summary>
+    /// Return [value]
+    /// </summary>
     Return,
     Jump,
+
+    /// <summary>
+    /// ConditionalJump [target], [condition]
+    /// </summary>
     ConditionalJump,
     IndirectJump,
     Push,
     Pop,
+
+    /// <summary>
+    /// Call [function (global variable)], [arg1], [arg2], ...
+    /// </summary>
     Call,
     Add,
     Subtract,

@@ -23,7 +23,16 @@ internal class Program
         ));
         instructions.Add(new ILInstruction(2, ILOpCode.Unknown, new StringOperand("some unknown instruction")));
         instructions.Add(new ILInstruction(3, ILOpCode.Call,
-            new GlobalVariableOperand("SomeFunction"))
+            new GlobalVariableOperand("SomeFunction"),
+            new GlobalVariableOperand("something"))
+        );
+        instructions.Add(new ILInstruction(6, ILOpCode.Xor,
+            new RegisterOperand(0),
+            new RegisterOperand(1))
+        );
+        instructions.Add(new ILInstruction(7, ILOpCode.Xor,
+            new RegisterOperand(1),
+            new RegisterOperand(1))
         );
         instructions.Add(new ILInstruction(4, ILOpCode.ConditionalJump,
             new BranchTarget(instructions[1]),
