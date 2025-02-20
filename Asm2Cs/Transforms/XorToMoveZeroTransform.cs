@@ -16,17 +16,16 @@ public class XorToMoveZeroTransform : ITransform
             if (instruction.OpCode != ILOpCode.Xor)
                 continue;
 
-            if (instruction.Operands[0].OperandType != OperandType.Register)
+            if (instruction.Operands[0].Item2 != OperandType.Register)
                 continue;
-            if (instruction.Operands[1].OperandType != OperandType.Register)
+            if (instruction.Operands[1].Item2 != OperandType.Register)
                 continue;
 
-            if (((RegisterOperand)instruction.Operands[0]).Register !=
-                ((RegisterOperand)instruction.Operands[1]).Register)
+            if (instruction.Operands[0] != instruction.Operands[1])
                 continue;
 
             instruction.OpCode = ILOpCode.Move;
-            instruction.Operands[1] = new IntOperand(0);
+            instruction.Operands[1] = (0, OperandType.Int);
             instructionsTransformed++;
         }
 

@@ -3,7 +3,7 @@
 /// <summary>
 /// Single intermediate language instruction. Can be used as an operand.
 /// </summary>
-public class ILInstruction : IILOperand
+public class ILInstruction
 {
     /// <summary>
     /// Index of the instruction.
@@ -18,7 +18,7 @@ public class ILInstruction : IILOperand
     /// <summary>
     /// Operands of the instruction.
     /// </summary>
-    public IILOperand[] Operands;
+    public (object, OperandType)[] Operands;
 
     /// <summary>
     /// Is this instruction the entry point of a block?
@@ -33,7 +33,7 @@ public class ILInstruction : IILOperand
     /// <param name="index">Index of the instruction.</param>
     /// <param name="opCode">Opcode of the instruction.</param>
     /// <param name="operands">Operands of the instruction.</param>
-    public ILInstruction(int index, ILOpCode opCode, params IILOperand[] operands)
+    public ILInstruction(int index, ILOpCode opCode, params (object, OperandType)[] operands)
     {
         Index = index;
         OpCode = opCode;
@@ -44,8 +44,19 @@ public class ILInstruction : IILOperand
     /// Returns the instruction in the format of <c>index. opcode operand1, operand2, etc.</c>
     /// </summary>
     /// <returns>The instruction as string.</returns>
-    public override string ToString()
+    public override string ToString() =>
+        $"({Index}. {OpCode} {string.Join(", ", Operands.Select(operand =>
+            FormatOperand(operand.Item1, operand.Item2)).ToArray())})";
+
+    public static string FormatOperand(object operand, OperandType type)
     {
-        return $"({Index}. {OpCode} {string.Join(", ", (ReadOnlySpan<object?>)Operands)})";
+        return type switch
+        {
+            OperandType.Instruction => $"@{((ILInstruction)operand).Index}",
+            OperandType.Register => $"r{operand}",
+            OperandType.StackVariable => $"stack:{operand:X}",
+            OperandType.String => $"\"{operand}\"",
+            _ => operand.ToString()!
+        };
     }
 }

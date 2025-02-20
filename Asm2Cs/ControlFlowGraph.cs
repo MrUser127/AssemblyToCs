@@ -41,26 +41,11 @@ public class ControlFlowGraph
         foreach (var instruction in instructions)
             instruction.IsBlockStart = true;
 
-        GetBlockEdges(instructions, out var blockStarts, out var blockEnds);
+        GetBlockEdges(function, instructions, out var blockStarts, out var blockEnds);
         CreateBlocks(instructions);
 
         for (var i = 0; i < blockStarts.Count; i++)
             AddEdge(GetBlockByInstruction(blockStarts[i])!, GetBlockByInstruction(blockEnds[i])!);
-
-        foreach (var instruction in instructions)
-        {
-            if (instruction.OpCode is not (ILOpCode.Jump or ILOpCode.ConditionalJump or ILOpCode.IndirectJump))
-                continue;
-
-            if (instruction.OpCode == ILOpCode.IndirectJump)
-            {
-                function.AddComment($"Indirect jumps are not implemented: {instruction}", instruction);
-                continue;
-            }
-
-            var target = GetBranchTarget(instruction);
-            ((BranchTarget)instruction.Operands[0]).Block = GetBlockByInstruction(target);
-        }
 
         if (Blocks.Count <= 0) return;
         if (EntryBlock.Predecessors.Count <= 0) return;
@@ -71,7 +56,7 @@ public class ControlFlowGraph
         AddEdge(newEntry, Blocks[1]);
     }
 
-    private void GetBlockEdges(List<ILInstruction> instructions, out List<ILInstruction> blockStarts,
+    private void GetBlockEdges(Function function, List<ILInstruction> instructions, out List<ILInstruction> blockStarts,
         out List<ILInstruction> blockEnds)
     {
         blockStarts = new List<ILInstruction>();
@@ -97,7 +82,8 @@ public class ControlFlowGraph
                     blockEnds.Add(GetBranchTarget(instruction));
                     break;
                 case ILOpCode.IndirectJump:
-                    break; // Rebuild() adds warning about this
+                    function.AddComment($"Indirect jumps are not implemented: {instruction}", instruction);
+                    break;
                 case ILOpCode.Return:
                     break;
                 default:
@@ -136,19 +122,13 @@ public class ControlFlowGraph
     }
 
     private static ILInstruction GetBranchTarget(ILInstruction instruction) =>
-        ((BranchTarget)instruction.Operands[0]).Instruction;
+        (ILInstruction)instruction.Operands[0].Item1;
 
-    private Block? GetBlockByInstruction(ILInstruction? instruction)
-    {
-        if (instruction == null)
-            return null;
-
-        foreach (var block in Blocks)
-            if (block.Instructions.Any(blockInstruction => blockInstruction == instruction))
-                return block;
-
-        return null;
-    }
+    private Block? GetBlockByInstruction(ILInstruction? instruction) =>
+        instruction == null
+            ? null
+            : Blocks.FirstOrDefault(
+                block => block.Instructions.Any(blockInstruction => blockInstruction == instruction));
 
     private static void AddEdge(Block from, Block to)
     {

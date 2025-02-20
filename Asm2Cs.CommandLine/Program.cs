@@ -15,38 +15,38 @@ internal class Program
         List<ILInstruction> instructions = new List<ILInstruction>();
 
         instructions.Add(new ILInstruction(0, ILOpCode.Move,
-            new GlobalVariableOperand("something"),
-            new ILInstruction(1, ILOpCode.Add,
-                new IntOperand(0x1),
-                new FloatOperand(0.5f)
-            )
+            (new GlobalVariableOperand("something"), OperandType.GlobalVariable),
+            (new ILInstruction(1, ILOpCode.Add,
+                (0x1, OperandType.Int),
+                (0.5f, OperandType.Float)
+            ), OperandType.InstructionResult)
         ));
-        instructions.Add(new ILInstruction(2, ILOpCode.Unknown, new StringOperand("some unknown instruction")));
+        instructions.Add(new ILInstruction(2, ILOpCode.Unknown, ("some unknown instruction", OperandType.String)));
         instructions.Add(new ILInstruction(3, ILOpCode.Call,
-            new GlobalVariableOperand("SomeFunction"),
-            new GlobalVariableOperand("something"))
-        );
+            (new GlobalVariableOperand("SomeFunction"), OperandType.GlobalVariable),
+            (new GlobalVariableOperand("something"), OperandType.GlobalVariable)
+        ));
         instructions.Add(new ILInstruction(6, ILOpCode.Xor,
-            new RegisterOperand(0),
-            new RegisterOperand(1))
+            (0, OperandType.Register),
+            (1, OperandType.Register))
         );
         instructions.Add(new ILInstruction(7, ILOpCode.Xor,
-            new RegisterOperand(1),
-            new RegisterOperand(1))
+            (1, OperandType.Register),
+            (1, OperandType.Register))
         );
         instructions.Add(new ILInstruction(4, ILOpCode.ConditionalJump,
-            new BranchTarget(instructions[1]),
-            new RegisterOperand(5)
+            (instructions[1], OperandType.Instruction),
+            (5, OperandType.Register)
         ));
         instructions.Add(new ILInstruction(5, ILOpCode.Return,
-            new GlobalVariableOperand("something"))
-        );
+            (new GlobalVariableOperand("something"), OperandType.GlobalVariable)
+        ));
 
         Function function = new Function("SomeFunction", instructions,
             new List<LocalVariable>()
             {
-                new LocalVariable("param1", new RegisterOperand(1), DataType.Int),
-                new LocalVariable("param2", new StackVariableOperand(0x3), DataType.Int),
+                new LocalVariable("param1", (1, OperandType.Register), DataType.Int),
+                new LocalVariable("param2", (0x3, OperandType.StackVariable), DataType.Int),
             }, DataType.Int);
 
         var decompiler = new Decompiler();

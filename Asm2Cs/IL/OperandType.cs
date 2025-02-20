@@ -6,7 +6,7 @@
 public enum OperandType
 {
     InstructionResult,
-    BranchTarget,
+    Instruction,
     Register,
     StackVariable,
     GlobalVariable,

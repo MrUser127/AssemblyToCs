@@ -3,10 +3,8 @@
 /// <summary>
 /// Global variable reference.
 /// </summary>
-public class GlobalVariableOperand : IILOperand
+public class GlobalVariableOperand
 {
-    public OperandType OperandType => OperandType.GlobalVariable;
-
     /// <summary>
     /// Name of the variable.
     /// </summary>
