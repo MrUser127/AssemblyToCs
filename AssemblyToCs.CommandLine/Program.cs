@@ -11,7 +11,7 @@ internal class Program
     {
         if (args.Length == 0)
         {
-            Console.WriteLine("No command line arguments");
+            Console.WriteLine("No args");
             PrintHelp();
             Environment.Exit(1);
         }
@@ -44,16 +44,20 @@ internal class Program
                 Environment.Exit(1);
             }
 
-            Console.WriteLine($"Method: {method}");
+            Console.WriteLine($"Method found: {method}");
 
             var decompiler = new Decompiler();
 
+            Console.WriteLine("Decompiling...");
+            var code = decompiler.DecompileAsString(method, assemblyDirectory);
+
+            Console.WriteLine("Decompiled code:");
             Console.WriteLine();
-            Console.WriteLine(decompiler.DecompileAsString(method, assemblyDirectory));
+            Console.WriteLine(code);
         }
         else
         {
-            Console.WriteLine($"Invalid command: {command}");
+            Console.WriteLine($"Unknown command: {command}");
             PrintHelp();
             Environment.Exit(1);
         }
@@ -66,14 +70,14 @@ internal class Program
 
             if (index == -1)
             {
-                Console.WriteLine($"Argument {item} not found");
+                Console.WriteLine($"Argument {item} not found, add {item} [value]");
                 PrintHelp();
                 Environment.Exit(1);
             }
 
             if (args.Length <= index + 1)
             {
-                Console.WriteLine($"No value for {item}");
+                Console.WriteLine($"No value for {item}, add something after it");
                 PrintHelp();
                 Environment.Exit(1);
             }
@@ -90,8 +94,8 @@ internal class Program
 
                           Commands:
                               dec: decompile
-                                  --dll is path to dll file to decompile method in
-                                  --method is name of the method to decompile (Namespace.Type+NestedType::Method)
+                                  --dll: What dll to decompile method in?
+                                  --method: What method to decompile? (Namespace.Type+NestedType::Method)
                           """);
     }
 }

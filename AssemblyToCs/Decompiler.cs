@@ -8,14 +8,23 @@ using ICSharpCode.Decompiler.TypeSystem;
 namespace AssemblyToCs;
 
 /// <summary>
-/// The main decompiler class.
+/// The main decompiler.
 /// </summary>
 public class Decompiler
 {
     /// <summary>
-    /// Decompiles a method to .NET's IL. There is no return value, this sets the method body.
+    /// Settings for IL -> C# decompiler.
     /// </summary>
-    /// <param name="method">The method.</param>
+    public DecompilerSettings Settings = new DecompilerSettings()
+    {
+        AggressiveInlining = true,
+        AlwaysUseBraces = false
+    };
+
+    /// <summary>
+    /// Decompiles a method to .NET's IL. There is no return value, this sets the body.
+    /// </summary>
+    /// <param name="method">What method?</param>
     public void Decompile(MethodDefinition method)
     {
         try
@@ -31,8 +40,8 @@ public class Decompiler
     /// <summary>
     /// Decompiles a method as string.
     /// </summary>
-    /// <param name="method">The method.</param>
-    /// <param name="assemblyDirectory">The directory where this assembly and its deps are.</param>
+    /// <param name="method">What method?</param>
+    /// <param name="assemblyDirectory">Where are deps for this assembly?</param>
     /// <returns>The method as string.</returns>
     public string DecompileAsString(MethodDefinition method, string assemblyDirectory)
     {
@@ -42,7 +51,7 @@ public class Decompiler
         var assemblyPath = Path.Combine(assemblyDirectory, method.Module!.Name + "_tmp.dll");
         method.Module!.Write(assemblyPath);
 
-        var decompiler = new CSharpDecompiler(assemblyPath, new DecompilerSettings());
+        var decompiler = new CSharpDecompiler(assemblyPath, Settings);
         var name = new FullTypeName(method.DeclaringType!.FullName);
         var typeInfo = decompiler.TypeSystem.FindType(name).GetDefinition()!;
         var token = typeInfo.Methods.FirstOrDefault(m => m.Name == method.Name)!.MetadataToken;
