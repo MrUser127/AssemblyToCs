@@ -1,4 +1,4 @@
-﻿namespace Asm2Cs;
+﻿namespace Old_Asm2Cs;
 
 /// <summary>
 /// Core data type types.

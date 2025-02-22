@@ -1,6 +1,6 @@
-﻿using Asm2Cs.IL;
+﻿using Old_Asm2Cs.IL;
 
-namespace Asm2Cs.Transforms;
+namespace Old_Asm2Cs.Transforms;
 
 /// <summary>
 /// Replaces xor reg, reg with move reg, 0

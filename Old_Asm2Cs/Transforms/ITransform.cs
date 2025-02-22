@@ -1,4 +1,4 @@
-﻿namespace Asm2Cs.Transforms;
+﻿namespace Old_Asm2Cs.Transforms;
 
 /// <summary>
 /// Transform applied to a function.

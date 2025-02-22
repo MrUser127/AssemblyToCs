@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Asm2Cs;
+namespace Old_Asm2Cs;
 
 /// <summary>
 /// Data type.

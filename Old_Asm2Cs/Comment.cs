@@ -1,6 +1,6 @@
-﻿using Asm2Cs.IL;
+﻿using Old_Asm2Cs.IL;
 
-namespace Asm2Cs;
+namespace Old_Asm2Cs;
 
 /// <summary>
 /// Comment in decompiled code.

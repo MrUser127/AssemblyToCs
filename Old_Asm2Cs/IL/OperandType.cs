@@ -1,4 +1,4 @@
-﻿namespace Asm2Cs.IL;
+﻿namespace Old_Asm2Cs.IL;
 
 /// <summary>
 /// All operand types.

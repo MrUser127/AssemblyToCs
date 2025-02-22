@@ -1,4 +1,4 @@
-﻿namespace Asm2Cs.IL;
+﻿namespace Old_Asm2Cs.IL;
 
 /// <summary>
 /// Single intermediate language instruction. Can be used as an operand.

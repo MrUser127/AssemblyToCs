@@ -1,8 +1,8 @@
 ﻿using System.Text;
-using Asm2Cs.IL;
-using Asm2Cs.Transforms;
+using Old_Asm2Cs.IL;
+using Old_Asm2Cs.Transforms;
 
-namespace Asm2Cs;
+namespace Old_Asm2Cs;
 
 /// <summary>
 /// The main decompiler class.

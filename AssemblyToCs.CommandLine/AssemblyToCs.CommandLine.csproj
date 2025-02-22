@@ -5,13 +5,14 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-    
+
     <ItemGroup>
-        <ProjectReference Include="..\Asm2Cs\Asm2Cs.csproj"/>
+        <ProjectReference Include="..\AssemblyToCs\AssemblyToCs.csproj"/>
     </ItemGroup>
-    
+
     <ItemGroup>
-      <PackageReference Include="DotNetGraph" Version="3.2.0" />
+        <PackageReference Include="AsmResolver.DotNet" Version="6.0.0-beta.2"/>
+        <PackageReference Include="ICSharpCode.Decompiler" Version="9.0.0.7889"/>
     </ItemGroup>
 
 </Project>
