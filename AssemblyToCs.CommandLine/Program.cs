@@ -48,6 +48,10 @@ internal class Program
 
             var decompiler = new Decompiler();
 
+            decompiler.InfoLog = (text, source) => Console.WriteLine($"{source} : {text}");
+            decompiler.WarnLog = (text, source) => Console.WriteLine($"{source} [Warn] : {text}");
+            decompiler.ErrorLog = (text, source) => Console.WriteLine($"{source} [Error] : {text}");
+
             Console.WriteLine("Decompiling...");
             var code = decompiler.DecompileAsString(method, assemblyDirectory);
 

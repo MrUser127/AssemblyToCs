@@ -22,18 +22,58 @@ public class Decompiler
     };
 
     /// <summary>
+    /// Info log event.
+    /// </summary>
+    public Action<string, string> InfoLog = (_, _) => { };
+
+    /// <summary>
+    /// Warning log event.
+    /// </summary>
+    public Action<string, string> WarnLog = (_, _) => { };
+
+    /// <summary>
+    /// Error log event.
+    /// </summary>
+    public Action<string, string> ErrorLog = (_, _) => { };
+
+    /// <summary>
+    /// Logs info message.
+    /// </summary>
+    /// <param name="text">Text.</param>
+    /// <param name="source">Where did this log come from?</param>
+    public void Info(string text, string source = "Decompiler") => InfoLog(text, source);
+
+    /// <summary>
+    /// Logs warning message.
+    /// </summary>
+    /// <param name="text">Text.</param>
+    /// <param name="source">Where did this log come from?</param>
+    public void Warn(string text, string source = "Decompiler") => WarnLog(text, source);
+
+    /// <summary>
+    /// Logs error message.
+    /// </summary>
+    /// <param name="text">Text.</param>
+    /// <param name="source">Where did this log come from?</param>
+    public void Error(string text, string source = "Decompiler") => ErrorLog(text, source);
+
+    /// <summary>
     /// Decompiles a method to .NET's IL. There is no return value, this sets the body.
     /// </summary>
     /// <param name="method">What method?</param>
     public void Decompile(MethodDefinition method)
     {
+        Info($"Decompiling {method.Name}...");
+
         try
         {
             ReplaceBodyWithException(method, "Decompilation not implemented");
+            Info("Done!");
         }
         catch (Exception e)
         {
-            ReplaceBodyWithException(method, e.ToString());
+            ReplaceBodyWithException(method, "Decompilation failed: " + e);
+            Error($"Decompilation failed: {e}");
         }
     }
 
@@ -47,6 +87,7 @@ public class Decompiler
     {
         Decompile(method);
 
+        Info("Decompiling IL to C#...");
         // i don't want to overwrite original assembly, just to be sure
         var assemblyPath = Path.Combine(assemblyDirectory, method.Module!.Name + "_tmp.dll");
         method.Module!.Write(assemblyPath);
@@ -58,6 +99,7 @@ public class Decompiler
         var code = decompiler.DecompileAsString(token);
 
         File.Delete(assemblyPath);
+        Info("Done!");
         return code;
     }
 
