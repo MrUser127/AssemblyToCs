@@ -2,9 +2,6 @@
 using System.IO;
 using System.Linq;
 using AsmResolver.DotNet;
-using ICSharpCode.Decompiler;
-using ICSharpCode.Decompiler.CSharp;
-using ICSharpCode.Decompiler.TypeSystem;
 
 namespace AssemblyToCs.CommandLine;
 
