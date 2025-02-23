@@ -26,16 +26,16 @@ internal class Program
             new List<TypeSignature>()
             {
             });
-        var methodDef = new MethodDefinition("TheMethod", MethodAttributes.Public, signature);
-        type.Methods.Add(methodDef);
+        var method = new MethodDefinition("TheMethod", MethodAttributes.Public, signature);
+        type.Methods.Add(method);
 
         var workingDirectory = Path.GetDirectoryName(Environment.ProcessPath!)!;
         var assemblyPath = Path.Combine(workingDirectory, "TempAssembly.dll");
         module.Write(assemblyPath);
 
-        Console.WriteLine($"Method: {methodDef}");
+        Console.WriteLine($"Method: {method}");
 
-        var method = new Method(methodDef, new List<ILInstruction>()
+        var il = new List<ILInstruction>()
         {
             new ILInstruction(0x0, ILOpCode.Return,
                 (new ILInstruction(0x1, ILOpCode.Add,
@@ -43,11 +43,11 @@ internal class Program
                         (2, OperandType.Int)
                     ),
                     OperandType.InstructionResult))
-        });
+        };
 
         Console.WriteLine();
         Console.WriteLine("IL:");
-        Console.WriteLine(string.Join(Environment.NewLine, method.Instructions));
+        Console.WriteLine(string.Join(Environment.NewLine, il));
 
         var decompiler = new Decompiler();
 
@@ -57,7 +57,7 @@ internal class Program
 
         Console.WriteLine();
         Console.WriteLine("Decompiling...");
-        var code = decompiler.DecompileAsString(methodDef, workingDirectory);
+        var code = decompiler.DecompileAsString(method, workingDirectory);
 
         Console.WriteLine();
         Console.WriteLine("Decompiled code:");

@@ -78,7 +78,7 @@ public class Decompiler
     }
 
     /// <summary>
-    /// Decompiles a method as string.
+    /// Decompiles a method as string. This writes a copy of original assembly with 1 method decompiled to assemblyDirectory and then deletes it.
     /// </summary>
     /// <param name="method">What method?</param>
     /// <param name="assemblyDirectory">Where are deps for this assembly?</param>
@@ -88,7 +88,7 @@ public class Decompiler
         Decompile(method);
 
         Info("Decompiling IL to C#...");
-        // i don't want to overwrite original assembly, just to be sure
+
         var assemblyPath = Path.Combine(assemblyDirectory, method.Module!.Name + "_tmp.dll");
         method.Module!.Write(assemblyPath);
 
