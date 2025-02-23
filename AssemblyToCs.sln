@@ -2,8 +2,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Old_Asm2Cs", "Old_Asm2Cs\Old_Asm2Cs.csproj", "{06FC3DAD-450A-B210-0505-D6314DCA85EC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyToCs.CommandLine", "AssemblyToCs.CommandLine\AssemblyToCs.CommandLine.csproj", "{B191B2D4-88EE-B58B-0512-222449056200}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyToCs", "AssemblyToCs\AssemblyToCs.csproj", "{2B461365-02C0-41DA-8346-B07FB50A639A}"
@@ -14,10 +12,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{06FC3DAD-450A-B210-0505-D6314DCA85EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06FC3DAD-450A-B210-0505-D6314DCA85EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06FC3DAD-450A-B210-0505-D6314DCA85EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06FC3DAD-450A-B210-0505-D6314DCA85EC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B191B2D4-88EE-B58B-0512-222449056200}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B191B2D4-88EE-B58B-0512-222449056200}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B191B2D4-88EE-B58B-0512-222449056200}.Release|Any CPU.ActiveCfg = Release|Any CPU
