@@ -33,6 +33,20 @@ public class ILInstruction
         Operands = operands;
     }
 
+    /// <summary>
+    /// Gets the type of number i operand.
+    /// </summary>
+    /// <param name="i">Which operand?</param>
+    /// <returns>Operand type.</returns>
+    public OperandType GetOpType(int i) => Operands[i].Item2;
+
+    /// <summary>
+    /// Gets the number i operand.
+    /// </summary>
+    /// <param name="i">Which operand?</param>
+    /// <returns>The operand.</returns>
+    public object GetOp(int i) => Operands[i].Item1;
+
     public override string ToString() => $"{Offset:X} {OpCode} {string.Join(", ", Operands.Select(FormatOperand))}";
 
     private static string FormatOperand((object, OperandType) operand)
