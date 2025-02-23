@@ -22,28 +22,41 @@ internal class Program
         var type = new TypeDefinition("TheNamespace", "TheClass", TypeAttributes.Class | TypeAttributes.Public);
         module.TopLevelTypes.Add(type);
 
-        var signature = new MethodSignature(CallingConventionAttributes.Default, corLibTypes.Void,
+        var signature = new MethodSignature(CallingConventionAttributes.Default, corLibTypes.Int32,
             new List<TypeSignature>()
             {
+                corLibTypes.Int32,
+                corLibTypes.Int32
             });
         var method = new MethodDefinition("TheMethod", MethodAttributes.Public, signature);
         type.Methods.Add(method);
+
+        var parameters = new List<(object, OperandType)>()
+        {
+            (0, OperandType.Register),
+            (1, OperandType.Register)
+        };
+
+        var il = new List<ILInstruction>()
+        {
+            new ILInstruction(0x0, ILOpCode.Move,
+                (2, OperandType.Register),
+                (0, OperandType.Register)
+            ),
+            new ILInstruction(0x1, ILOpCode.Add,
+                (2, OperandType.Register),
+                (1, OperandType.Register)
+            ),
+            new ILInstruction(0x3, ILOpCode.Return,
+                (2, OperandType.Register)
+            )
+        };
 
         var workingDirectory = Path.GetDirectoryName(Environment.ProcessPath!)!;
         var assemblyPath = Path.Combine(workingDirectory, "TempAssembly.dll");
         module.Write(assemblyPath);
 
         Console.WriteLine($"Method: {method}");
-
-        var il = new List<ILInstruction>()
-        {
-            new ILInstruction(0x0, ILOpCode.Return,
-                (new ILInstruction(0x1, ILOpCode.Add,
-                        (1, OperandType.Int),
-                        (2, OperandType.Int)
-                    ),
-                    OperandType.InstructionResult))
-        };
 
         Console.WriteLine();
         Console.WriteLine("IL:");
@@ -57,7 +70,7 @@ internal class Program
 
         Console.WriteLine();
         Console.WriteLine("Decompiling...");
-        var code = decompiler.DecompileAsString(method, workingDirectory);
+        var code = decompiler.DecompileAsString(method, il, parameters, workingDirectory);
 
         Console.WriteLine();
         Console.WriteLine("Decompiled code:");

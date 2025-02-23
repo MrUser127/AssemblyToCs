@@ -4,6 +4,7 @@ using AsmResolver.PE.DotNet.Cil;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.TypeSystem;
+using AssemblyToCs.IL;
 
 namespace AssemblyToCs;
 
@@ -61,7 +62,10 @@ public class Decompiler
     /// Decompiles a method to .NET's IL. There is no return value, this sets the body.
     /// </summary>
     /// <param name="method">What method?</param>
-    public void Decompile(MethodDefinition method)
+    /// <param name="instructions">Instructions.</param>
+    /// <param name="parameters">Parameter locations.</param>
+    public void Decompile(MethodDefinition method, List<ILInstruction> instructions,
+        List<(object, OperandType)> parameters)
     {
         Info($"Decompiling {method.Name}...");
 
@@ -81,11 +85,15 @@ public class Decompiler
     /// Decompiles a method as string. This writes a copy of original assembly with 1 method decompiled to assemblyDirectory and then deletes it.
     /// </summary>
     /// <param name="method">What method?</param>
+    /// <param name="instructions">Instructions.</param>
+    /// <param name="parameters">Parameter locations.</param>
     /// <param name="assemblyDirectory">Where are deps for this assembly?</param>
     /// <returns>The method as string.</returns>
-    public string DecompileAsString(MethodDefinition method, string assemblyDirectory)
+    public string DecompileAsString(MethodDefinition method, List<ILInstruction> instructions,
+        List<(object, OperandType)> parameters,
+        string assemblyDirectory)
     {
-        Decompile(method);
+        Decompile(method, instructions, parameters);
 
         Info("Decompiling IL to C#...");
 
