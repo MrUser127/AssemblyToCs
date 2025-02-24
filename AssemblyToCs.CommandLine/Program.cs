@@ -30,8 +30,8 @@ internal class Program
                 corLibTypes.Int32
             });
         var method = new MethodDefinition("TheMethod", MethodAttributes.Public, signature);
-        method.ParameterDefinitions.Add(new ParameterDefinition(1, "A", 0));
-        method.ParameterDefinitions.Add(new ParameterDefinition(2, "B", 0));
+        method.ParameterDefinitions.Add(new ParameterDefinition(1, "a", 0));
+        method.ParameterDefinitions.Add(new ParameterDefinition(2, "b", 0));
         type.Methods.Add(method);
 
         var parameters = new List<(object, OperandType)>()
@@ -42,18 +42,12 @@ internal class Program
 
         var il = new List<Instruction>()
         {
-            new Instruction(0x0, OpCode.Move,
-                (2, OperandType.Register),
-                (0, OperandType.Register)
-            ),
-            new Instruction(0x1, OpCode.Add,
-                (2, OperandType.Register),
-                (1, OperandType.Register)
-            ),
-            new Instruction(0x3, OpCode.Return,
-                (2, OperandType.Register)
-            )
+            new Instruction(0x0, OpCode.Move, (2, OperandType.Register), (0, OperandType.Register)),
+            new Instruction(0x1, OpCode.Add, (2, OperandType.Register), (1, OperandType.Register)),
+            new Instruction(0x3, OpCode.Return, (2, OperandType.Register))
         };
+
+        var decompilerMethod = new Method(method, il, parameters);
 
         var workingDirectory = Path.GetDirectoryName(Environment.ProcessPath!)!;
         var assemblyPath = Path.Combine(workingDirectory, "TempAssembly.dll");
@@ -67,13 +61,19 @@ internal class Program
 
         var decompiler = new Decompiler();
 
+        decompiler.PreDecompile = (_) => Console.WriteLine("PreDecompile invoked");
+        decompiler.PostDecompile = (_) => Console.WriteLine("PostDecompile invoked");
+
         decompiler.InfoLog = (text, source) => Console.WriteLine($"{source} : {text}");
         decompiler.WarnLog = (text, source) => Console.WriteLine($"{source} [Warn] : {text}");
         decompiler.ErrorLog = (text, source) => Console.WriteLine($"{source} [Error] : {text}");
 
         Console.WriteLine();
         Console.WriteLine("Decompiling...");
-        var code = decompiler.DecompileAsString(method, il, parameters, workingDirectory);
+        var code = decompiler.DecompileAsString(decompilerMethod, workingDirectory);
+
+        var decompiledAssemblyPath = Path.Combine(workingDirectory, "TempAssembly_decompiled.dll");
+        module.Write(decompiledAssemblyPath);
 
         Console.WriteLine();
         Console.WriteLine("Decompiled code:");

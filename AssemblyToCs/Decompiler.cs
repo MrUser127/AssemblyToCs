@@ -23,6 +23,16 @@ public class Decompiler
     };
 
     /// <summary>
+    /// Invoked before starting decompilation.
+    /// </summary>
+    public Action<Method> PreDecompile = (_) => { };
+
+    /// <summary>
+    /// Invoked after decompilation.
+    /// </summary>
+    public Action<Method> PostDecompile = (_) => { };
+
+    /// <summary>
     /// Info log event.
     /// </summary>
     public Action<string, string> InfoLog = (_, _) => { };
@@ -62,21 +72,23 @@ public class Decompiler
     /// Decompiles a method to .NET's IL. There is no return value, this sets the body.
     /// </summary>
     /// <param name="method">What method?</param>
-    /// <param name="instructions">Instructions.</param>
-    /// <param name="parameters">Parameter locations.</param>
-    public void Decompile(MethodDefinition method, List<Instruction> instructions,
-        List<(object, OperandType)> parameters)
+    public void Decompile(Method method)
     {
-        Info($"Decompiling {method.Name}...");
+        var definition = method.Definition;
+        Info($"Decompiling {definition.Name}...");
 
         try
         {
-            ReplaceBodyWithException(method, "Decompilation not implemented");
+            PreDecompile(method);
+            Simplification.Apply(method, this);
+            PostDecompile(method);
+
+            ReplaceBodyWithException(definition, "Decompilation not implemented");
             Info("Done!");
         }
         catch (Exception e)
         {
-            ReplaceBodyWithException(method, "Decompilation failed: " + e);
+            ReplaceBodyWithException(definition, "Decompilation failed: " + e);
             Error($"Decompilation failed: {e}");
         }
     }
@@ -85,25 +97,22 @@ public class Decompiler
     /// Decompiles a method as string. This writes a copy of original assembly with 1 method decompiled to assemblyDirectory and then deletes it.
     /// </summary>
     /// <param name="method">What method?</param>
-    /// <param name="instructions">Instructions.</param>
-    /// <param name="parameters">Parameter locations.</param>
     /// <param name="assemblyDirectory">Where are deps for this assembly?</param>
     /// <returns>The method as string.</returns>
-    public string DecompileAsString(MethodDefinition method, List<Instruction> instructions,
-        List<(object, OperandType)> parameters,
-        string assemblyDirectory)
+    public string DecompileAsString(Method method, string assemblyDirectory)
     {
-        Decompile(method, instructions, parameters);
+        var definition = method.Definition;
+        Decompile(method);
 
         Info("Decompiling IL to C#...");
 
-        var assemblyPath = Path.Combine(assemblyDirectory, method.Module!.Name + "_tmp.dll");
-        method.Module!.Write(assemblyPath);
+        var assemblyPath = Path.Combine(assemblyDirectory, definition.Module!.Name + "_tmp.dll");
+        definition.Module!.Write(assemblyPath);
 
         var decompiler = new CSharpDecompiler(assemblyPath, Settings);
-        var name = new FullTypeName(method.DeclaringType!.FullName);
+        var name = new FullTypeName(definition.DeclaringType!.FullName);
         var typeInfo = decompiler.TypeSystem.FindType(name).GetDefinition()!;
-        var token = typeInfo.Methods.FirstOrDefault(m => m.Name == method.Name)!.MetadataToken;
+        var token = typeInfo.Methods.FirstOrDefault(m => m.Name == definition.Name)!.MetadataToken;
         var code = decompiler.DecompileAsString(token);
 
         File.Delete(assemblyPath);
