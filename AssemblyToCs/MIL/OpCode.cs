@@ -31,6 +31,46 @@ public enum OpCode
     ConditionalJump,
 
     /// <summary>
+    /// CheckEqual [src1], [src2]
+    /// </summary>
+    CheckEqual,
+
+    /// <summary>
+    /// CheckNotEqual [src1], [src2]
+    /// </summary>
+    CheckNotEqual,
+
+    /// <summary>
+    /// CheckGreater [src1], [src2]
+    /// </summary>
+    CheckGreater,
+
+    /// <summary>
+    /// CheckGreaterOrEqual [src1], [src2]
+    /// </summary>
+    CheckGreaterOrEqual,
+
+    /// <summary>
+    /// CheckLess [src1], [src2]
+    /// </summary>
+    CheckLess,
+
+    /// <summary>
+    /// CheckLessOrEqual [src1], [src2]
+    /// </summary>
+    CheckLessOrEqual,
+
+    /// <summary>
+    /// CheckSign [src]
+    /// </summary>
+    CheckSign,
+
+    /// <summary>
+    /// CheckNotSign [src]
+    /// </summary>
+    CheckNotSign,
+
+    /// <summary>
     /// Push [src]
     /// </summary>
     Push,
