@@ -1,15 +1,15 @@
-﻿namespace AssemblyToCs.IL;
+﻿namespace AssemblyToCs.MIL;
 
 /// <summary>
-/// Operand types.
+/// All operand types.
 /// </summary>
 public enum OperandType
 {
     Int,
     Float,
     String,
+    Branch,
     Instruction,
-    InstructionResult,
     Register,
     StackVariable
 }

@@ -1,9 +1,9 @@
-﻿namespace AssemblyToCs.IL;
+﻿namespace AssemblyToCs.MIL;
 
 /// <summary>
-/// All opcodes.
+/// All medium level IL opcodes.
 /// </summary>
-public enum ILOpCode
+public enum OpCode
 {
     Nop,
     Move,

@@ -1,9 +1,9 @@
-﻿namespace AssemblyToCs.IL;
+﻿namespace AssemblyToCs.MIL;
 
 /// <summary>
-/// IL instruction.
+/// Medium level IL instruction.
 /// </summary>
-public class ILInstruction
+public class Instruction
 {
     /// <summary>
     /// Instruction offset.
@@ -13,7 +13,7 @@ public class ILInstruction
     /// <summary>
     /// The opcode.
     /// </summary>
-    public ILOpCode OpCode;
+    public OpCode OpCode;
 
     /// <summary>
     /// Operands.
@@ -26,7 +26,7 @@ public class ILInstruction
     /// <param name="offset">Instruction offset.</param>
     /// <param name="opCode">The opcode.</param>
     /// <param name="operands">Operands.</param>
-    public ILInstruction(uint offset, ILOpCode opCode, params (object, OperandType)[] operands)
+    public Instruction(uint offset, OpCode opCode, params (object, OperandType)[] operands)
     {
         Offset = offset;
         OpCode = opCode;
@@ -56,8 +56,8 @@ public class ILInstruction
             OperandType.Int => operand.Item1.ToString()!,
             OperandType.Float => operand.Item1.ToString()!,
             OperandType.String => $"\"{operand.Item1}\"",
-            OperandType.Instruction => $"@{((ILInstruction)operand.Item1).Offset:X}",
-            OperandType.InstructionResult => $"({operand.Item1})",
+            OperandType.Branch => $"@{((Instruction)operand.Item1).Offset:X}",
+            OperandType.Instruction => $"({operand.Item1})",
             OperandType.Register => $"reg{operand.Item1}",
             OperandType.StackVariable => $"stk{operand.Item1}",
             _ => operand.Item1.ToString()!

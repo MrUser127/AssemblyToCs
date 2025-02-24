@@ -6,7 +6,7 @@ using AsmResolver;
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Metadata.Tables;
-using AssemblyToCs.IL;
+using AssemblyToCs.MIL;
 
 namespace AssemblyToCs.CommandLine;
 
@@ -29,6 +29,8 @@ internal class Program
                 corLibTypes.Int32
             });
         var method = new MethodDefinition("TheMethod", MethodAttributes.Public, signature);
+        method.ParameterDefinitions[0].Name = "A";
+        method.ParameterDefinitions[1].Name = "B";
         type.Methods.Add(method);
 
         var parameters = new List<(object, OperandType)>()
@@ -37,17 +39,17 @@ internal class Program
             (1, OperandType.Register)
         };
 
-        var il = new List<ILInstruction>()
+        var il = new List<Instruction>()
         {
-            new ILInstruction(0x0, ILOpCode.Move,
+            new Instruction(0x0, OpCode.Move,
                 (2, OperandType.Register),
                 (0, OperandType.Register)
             ),
-            new ILInstruction(0x1, ILOpCode.Add,
+            new Instruction(0x1, OpCode.Add,
                 (2, OperandType.Register),
                 (1, OperandType.Register)
             ),
-            new ILInstruction(0x3, ILOpCode.Return,
+            new Instruction(0x3, OpCode.Return,
                 (2, OperandType.Register)
             )
         };
@@ -59,7 +61,7 @@ internal class Program
         Console.WriteLine($"Method: {method}");
 
         Console.WriteLine();
-        Console.WriteLine("IL:");
+        Console.WriteLine("MIL:");
         Console.WriteLine(string.Join(Environment.NewLine, il));
 
         var decompiler = new Decompiler();

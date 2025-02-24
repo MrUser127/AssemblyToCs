@@ -4,7 +4,7 @@ using AsmResolver.PE.DotNet.Cil;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.TypeSystem;
-using AssemblyToCs.IL;
+using AssemblyToCs.MIL;
 
 namespace AssemblyToCs;
 
@@ -64,7 +64,7 @@ public class Decompiler
     /// <param name="method">What method?</param>
     /// <param name="instructions">Instructions.</param>
     /// <param name="parameters">Parameter locations.</param>
-    public void Decompile(MethodDefinition method, List<ILInstruction> instructions,
+    public void Decompile(MethodDefinition method, List<Instruction> instructions,
         List<(object, OperandType)> parameters)
     {
         Info($"Decompiling {method.Name}...");
@@ -89,7 +89,7 @@ public class Decompiler
     /// <param name="parameters">Parameter locations.</param>
     /// <param name="assemblyDirectory">Where are deps for this assembly?</param>
     /// <returns>The method as string.</returns>
-    public string DecompileAsString(MethodDefinition method, List<ILInstruction> instructions,
+    public string DecompileAsString(MethodDefinition method, List<Instruction> instructions,
         List<(object, OperandType)> parameters,
         string assemblyDirectory)
     {
