@@ -34,6 +34,15 @@ internal class Program
         method.ParameterDefinitions.Add(new ParameterDefinition(2, "b", 0));
         type.Methods.Add(method);
 
+        var signature2 = new MethodSignature(CallingConventionAttributes.Default, corLibTypes.Int32,
+            new List<TypeSignature>()
+            {
+                corLibTypes.Int32
+            });
+        var method2 = new MethodDefinition("DoSomething", MethodAttributes.Public, signature2);
+        method2.ParameterDefinitions.Add(new ParameterDefinition(1, "num", 0));
+        type.Methods.Add(method2);
+
         var parameters = new List<(object, OperandType)>()
         {
             (0, OperandType.Register),
@@ -44,7 +53,9 @@ internal class Program
         {
             new Instruction(0x0, OpCode.Move, (2, OperandType.Register), (0, OperandType.Register)),
             new Instruction(0x1, OpCode.Add, (2, OperandType.Register), (1, OperandType.Register)),
-            new Instruction(0x3, OpCode.Return, (2, OperandType.Register))
+            new Instruction(0x3, OpCode.Call, (method2, OperandType.Method), (2, OperandType.Register),
+                (2, OperandType.Register)),
+            new Instruction(0x4, OpCode.Return, (2, OperandType.Register))
         };
 
         var decompilerMethod = new Method(method, il, parameters);

@@ -5,6 +5,7 @@
 /// </summary>
 public enum OperandType
 {
+    None,
     Int,
     Float,
     String,

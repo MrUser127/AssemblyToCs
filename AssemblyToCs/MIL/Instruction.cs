@@ -58,7 +58,7 @@ public class Instruction
             OperandType.Int => operand.Item1.ToString()!,
             OperandType.Float => operand.Item1.ToString()!,
             OperandType.String => $"\"{operand.Item1}\"",
-            OperandType.Method => ((MethodDefinition)operand.Item1).ToString(),
+            OperandType.Method => ((MethodDefinition)operand.Item1).Name!,
             OperandType.Branch => $"@{((Instruction)operand.Item1).Offset:X}",
             OperandType.Register => $"reg{operand.Item1}",
             OperandType.Memory => $"mem:0x{operand.Item1:X}",
