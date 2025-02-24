@@ -1,4 +1,6 @@
-﻿namespace AssemblyToCs.MIL;
+﻿using AsmResolver.DotNet;
+
+namespace AssemblyToCs.MIL;
 
 /// <summary>
 /// Medium level IL instruction.
@@ -56,10 +58,11 @@ public class Instruction
             OperandType.Int => operand.Item1.ToString()!,
             OperandType.Float => operand.Item1.ToString()!,
             OperandType.String => $"\"{operand.Item1}\"",
+            OperandType.Method => ((MethodDefinition)operand.Item1).ToString(),
             OperandType.Branch => $"@{((Instruction)operand.Item1).Offset:X}",
-            OperandType.Instruction => $"({operand.Item1})",
             OperandType.Register => $"reg{operand.Item1}",
-            OperandType.StackVariable => $"stk{operand.Item1}",
+            OperandType.Memory => $"mem:0x{operand.Item1:X}",
+            OperandType.StackVariable => $"stk:{operand.Item1}",
             _ => operand.Item1.ToString()!
         };
     }

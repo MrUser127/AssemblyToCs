@@ -80,7 +80,7 @@ public class Decompiler
         try
         {
             PreDecompile(method);
-            Simplification.Apply(method, this);
+            Simplifier.Apply(method, this);
             PostDecompile(method);
 
             ReplaceBodyWithException(definition, "Decompilation not implemented");
