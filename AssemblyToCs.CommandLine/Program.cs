@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using AsmResolver;
 using AsmResolver.DotNet;
+using AsmResolver.DotNet.Collections;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Metadata.Tables;
 using AssemblyToCs.MIL;
@@ -29,8 +30,8 @@ internal class Program
                 corLibTypes.Int32
             });
         var method = new MethodDefinition("TheMethod", MethodAttributes.Public, signature);
-        method.ParameterDefinitions[0].Name = "A";
-        method.ParameterDefinitions[1].Name = "B";
+        method.ParameterDefinitions.Add(new ParameterDefinition(1, "A", 0));
+        method.ParameterDefinitions.Add(new ParameterDefinition(2, "B", 0));
         type.Methods.Add(method);
 
         var parameters = new List<(object, OperandType)>()
