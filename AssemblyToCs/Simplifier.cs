@@ -12,7 +12,7 @@ public static class Simplifier
     /// </summary>
     /// <param name="method">What method?</param>
     /// <param name="decompiler">The decompiler.</param>
-    public static void Apply(Method method, Decompiler decompiler)
+    public static void Simplify(Method method, Decompiler decompiler)
     {
         ReplaceXorWithMove(method, decompiler);
     }
@@ -24,10 +24,10 @@ public static class Simplifier
         foreach (var instruction in method.Instructions)
         {
             // xor reg, reg -> move reg, 0
-            if (instruction.OpCode == OpCode.Xor && instruction.Operands[0].Equals(instruction.Operands[1]))
+            if (instruction.OpCode == MilOpCode.Xor && instruction.Operands[0].Equals(instruction.Operands[1]))
             {
-                instruction.OpCode = OpCode.Move;
-                instruction.Operands[1] = (0, OperandType.Int);
+                instruction.OpCode = MilOpCode.Move;
+                instruction.Operands[1] = (0, MilOperand.Int);
                 count++;
             }
         }

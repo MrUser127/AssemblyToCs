@@ -16,12 +16,12 @@ public class Method
     /// <summary>
     /// All instructions for the method.
     /// </summary>
-    public List<Instruction> Instructions;
+    public List<MilInstruction> Instructions;
 
     /// <summary>
     /// Parameter locations.
     /// </summary>
-    public List<(object, OperandType)> Parameters;
+    public List<(object, MilOperand)> Parameters;
 
     /// <summary>
     /// Creates a new method.
@@ -29,7 +29,8 @@ public class Method
     /// <param name="definition">The definition.</param>
     /// <param name="instructions">All instructions for the method.</param>
     /// <param name="parameters">Parameter locations.</param>
-    public Method(MethodDefinition definition, List<Instruction> instructions, List<(object, OperandType)> parameters)
+    public Method(MethodDefinition definition, List<MilInstruction> instructions,
+        List<(object, MilOperand)> parameters)
     {
         Definition = definition;
         Instructions = instructions;

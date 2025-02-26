@@ -5,7 +5,7 @@ namespace AssemblyToCs.MIL;
 /// <summary>
 /// Medium level IL instruction.
 /// </summary>
-public class Instruction
+public class MilInstruction
 {
     /// <summary>
     /// Instruction offset.
@@ -15,12 +15,12 @@ public class Instruction
     /// <summary>
     /// The opcode.
     /// </summary>
-    public OpCode OpCode;
+    public MilOpCode OpCode;
 
     /// <summary>
     /// Operands.
     /// </summary>
-    public (object, OperandType)[] Operands;
+    public (object, MilOperand)[] Operands;
 
     /// <summary>
     /// Creates a new instruction.
@@ -28,7 +28,7 @@ public class Instruction
     /// <param name="offset">Instruction offset.</param>
     /// <param name="opCode">The opcode.</param>
     /// <param name="operands">Operands.</param>
-    public Instruction(uint offset, OpCode opCode, params (object, OperandType)[] operands)
+    public MilInstruction(uint offset, MilOpCode opCode, params (object, MilOperand)[] operands)
     {
         Offset = offset;
         OpCode = opCode;
@@ -40,7 +40,7 @@ public class Instruction
     /// </summary>
     /// <param name="i">Which operand?</param>
     /// <returns>Operand type.</returns>
-    public OperandType GetOpType(int i) => Operands[i].Item2;
+    public MilOperand GetOpType(int i) => Operands[i].Item2;
 
     /// <summary>
     /// Gets the number i operand.
@@ -51,18 +51,18 @@ public class Instruction
 
     public override string ToString() => $"{Offset:X} {OpCode} {string.Join(", ", Operands.Select(FormatOperand))}";
 
-    private static string FormatOperand((object, OperandType) operand)
+    private static string FormatOperand((object, MilOperand) operand)
     {
         return operand.Item2 switch
         {
-            OperandType.Int => operand.Item1.ToString()!,
-            OperandType.Float => operand.Item1.ToString()!,
-            OperandType.String => $"\"{operand.Item1}\"",
-            OperandType.Method => ((MethodDefinition)operand.Item1).Name!,
-            OperandType.Branch => $"@{((Instruction)operand.Item1).Offset:X}",
-            OperandType.Register => $"reg{operand.Item1}",
-            OperandType.Memory => $"mem:0x{operand.Item1:X}",
-            OperandType.StackVariable => $"stk:{operand.Item1}",
+            MilOperand.Int => operand.Item1.ToString()!,
+            MilOperand.Float => operand.Item1.ToString()!,
+            MilOperand.String => $"\"{operand.Item1}\"",
+            MilOperand.Method => ((MethodDefinition)operand.Item1).Name!,
+            MilOperand.Branch => $"@{((MilInstruction)operand.Item1).Offset:X}",
+            MilOperand.Register => $"reg{operand.Item1}",
+            MilOperand.Memory => $"mem:0x{operand.Item1:X}",
+            MilOperand.Stack => $"stk:{operand.Item1}",
             _ => operand.Item1.ToString()!
         };
     }

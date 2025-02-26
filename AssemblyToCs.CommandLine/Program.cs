@@ -43,19 +43,19 @@ internal class Program
         method2.ParameterDefinitions.Add(new ParameterDefinition(1, "num", 0));
         type.Methods.Add(method2);
 
-        var parameters = new List<(object, OperandType)>()
+        var parameters = new List<(object, MilOperand)>()
         {
-            (0, OperandType.Register),
-            (1, OperandType.Register)
+            (0, MilOperand.Register),
+            (1, MilOperand.Register)
         };
 
-        var il = new List<Instruction>()
+        var il = new List<MilInstruction>()
         {
-            new Instruction(0x0, OpCode.Move, (2, OperandType.Register), (0, OperandType.Register)),
-            new Instruction(0x1, OpCode.Add, (2, OperandType.Register), (1, OperandType.Register)),
-            new Instruction(0x3, OpCode.Call, (method2, OperandType.Method), (2, OperandType.Register),
-                (2, OperandType.Register)),
-            new Instruction(0x4, OpCode.Return, (2, OperandType.Register))
+            new MilInstruction(0x0, MilOpCode.Move, (2, MilOperand.Register), (0, MilOperand.Register)),
+            new MilInstruction(0x1, MilOpCode.Add, (2, MilOperand.Register), (1, MilOperand.Register)),
+            new MilInstruction(0x3, MilOpCode.Call, (method2, MilOperand.Method), (2, MilOperand.Register),
+                (2, MilOperand.Register)),
+            new MilInstruction(0x4, MilOpCode.Return, (2, MilOperand.Register))
         };
 
         var decompilerMethod = new Method(method, il, parameters);

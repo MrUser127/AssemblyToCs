@@ -3,7 +3,7 @@
 /// <summary>
 /// All medium level IL opcodes.
 /// </summary>
-public enum OpCode
+public enum MilOpCode
 {
     /// <summary>
     /// Unknown [optional text]

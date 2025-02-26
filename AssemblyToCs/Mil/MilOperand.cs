@@ -1,9 +1,9 @@
 ﻿namespace AssemblyToCs.MIL;
 
 /// <summary>
-/// All operand types.
+/// All medium level IL operand types.
 /// </summary>
-public enum OperandType
+public enum MilOperand
 {
     None,
     Int,
@@ -33,5 +33,5 @@ public enum OperandType
     /// <summary>
     /// Int. (stack offset)
     /// </summary>
-    StackVariable
+    Stack
 }
