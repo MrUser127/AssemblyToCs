@@ -68,11 +68,11 @@ public class ControlFlowGraph
 
             switch (instruction.OpCode)
             {
+                case MilOpCode.Jump:
                 case MilOpCode.ConditionalJump:
                     isNextBlockStart = true;
                     GetBranchTarget(instruction).IsBlockStart = true;
                     break;
-                case MilOpCode.Jump:
                 case MilOpCode.Return:
                     isNextBlockStart = true;
                     break;

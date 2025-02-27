@@ -61,10 +61,30 @@ internal class Program
             new MilInstruction(0x4, MilOpCode.Return, (2, MilOperand.Register))
         };
 
-        var decompilerMethod = new Method(method, mil, parameters);
+        /*var mil = new List<MilInstruction>();
+        mil.Add(new MilInstruction(0x0, MilOpCode.Move, (0, MilOperand.Register), (1, MilOperand.Register)));
+        mil.Add(new MilInstruction(0x1, MilOpCode.Move, (4, MilOperand.Register), (1, MilOperand.Register)));
+        mil.Add(new MilInstruction(0x2, MilOpCode.CheckNotSign, (500, MilOperand.Register), (0, MilOperand.Register),
+            (0, MilOperand.Int)));
+        mil.Add(new MilInstruction(0x3, MilOpCode.ConditionalJump, (0, MilOperand.None), (500, MilOperand.Register)));
+        mil.Add(new MilInstruction(0x4, MilOpCode.Move, (3, MilOperand.Register), (0, MilOperand.Int)));
+        mil.Add(new MilInstruction(0x5, MilOpCode.Jump, (0, MilOperand.None)));
+        mil.Add(new MilInstruction(0x6, MilOpCode.CheckNotSign, (500, MilOperand.Register), (4, MilOperand.Register),
+            (0, MilOperand.Int)));
+        mil.Add(new MilInstruction(0x7, MilOpCode.ConditionalJump, (0, MilOperand.None), (500, MilOperand.Register)));
+        mil.Add(new MilInstruction(0x8, MilOpCode.Move, (3, MilOperand.Register), (-1, MilOperand.Int)));
+        mil.Add(new MilInstruction(0x9, MilOpCode.Jump, (0, MilOperand.None)));
+        mil.Add(new MilInstruction(0x10, MilOpCode.Move, (5, MilOperand.Register), (0, MilOperand.Register)));
+        mil.Add(new MilInstruction(0x11, MilOpCode.Move, (3, MilOperand.Register), (4, MilOperand.Register)));
+        mil.Add(new MilInstruction(0x12, MilOpCode.Add, (3, MilOperand.Register), (5, MilOperand.Register)));
+        mil.Add(new MilInstruction(0x13, MilOpCode.Return, (3, MilOperand.Register)));
 
-        //var cfg = ControlFlowGraph.Build(decompilerMethod);
-        //WriteGraph(cfg, Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "Cfg.dot"));
+        mil[3].Operands[0] = (mil[6], MilOperand.Branch);
+        mil[5].Operands[0] = (mil[13], MilOperand.Branch);
+        mil[7].Operands[0] = (mil[10], MilOperand.Branch);
+        mil[9].Operands[0] = (mil[13], MilOperand.Branch);*/
+
+        var decompilerMethod = new Method(method, mil, parameters);
 
         var workingDirectory = Path.GetDirectoryName(Environment.ProcessPath!)!;
         var assemblyPath = Path.Combine(workingDirectory, "TempAssembly.dll");
@@ -75,6 +95,9 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine("MIL:");
         Console.WriteLine(string.Join(Environment.NewLine, mil));
+
+        //var cfg = ControlFlowGraph.Build(decompilerMethod);
+        //WriteGraph(cfg, Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "Cfg.dot"));
 
         var decompiler = new Decompiler();
 

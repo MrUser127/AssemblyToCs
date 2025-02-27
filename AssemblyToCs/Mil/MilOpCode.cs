@@ -21,16 +21,6 @@ public enum MilOpCode
     Return,
 
     /// <summary>
-    /// Jump [location]
-    /// </summary>
-    Jump,
-
-    /// <summary>
-    /// ConditionalJump [location], [condition]
-    /// </summary>
-    ConditionalJump,
-
-    /// <summary>
     /// Add [dest], [src]
     /// </summary>
     Add,
@@ -71,42 +61,52 @@ public enum MilOpCode
     Call,
 
     /// <summary>
-    /// CheckEqual [src1], [src2]
+    /// Jump [location]
+    /// </summary>
+    Jump,
+
+    /// <summary>
+    /// ConditionalJump [location], [condition]
+    /// </summary>
+    ConditionalJump,
+
+    /// <summary>
+    /// CheckEqual [result], [left], [right]
     /// </summary>
     CheckEqual,
 
     /// <summary>
-    /// CheckNotEqual [src1], [src2]
+    /// CheckNotEqual [result], [left], [right]
     /// </summary>
     CheckNotEqual,
 
     /// <summary>
-    /// CheckGreater [src1], [src2]
+    /// CheckGreater [result], [left], [right]
     /// </summary>
     CheckGreater,
 
     /// <summary>
-    /// CheckGreaterOrEqual [src1], [src2]
+    /// CheckGreaterOrEqual [result], [left], [right]
     /// </summary>
     CheckGreaterOrEqual,
 
     /// <summary>
-    /// CheckLess [src1], [src2]
+    /// CheckLess [result], [left], [right]
     /// </summary>
     CheckLess,
 
     /// <summary>
-    /// CheckLessOrEqual [src1], [src2]
+    /// CheckLessOrEqual [result], [left], [right]
     /// </summary>
     CheckLessOrEqual,
 
     /// <summary>
-    /// CheckSign [src]
+    /// CheckSign [result], [src]
     /// </summary>
     CheckSign,
 
     /// <summary>
-    /// CheckNotSign [src]
+    /// CheckNotSign [result], [src]
     /// </summary>
     CheckNotSign
 }
