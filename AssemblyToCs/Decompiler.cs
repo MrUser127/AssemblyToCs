@@ -35,7 +35,12 @@ public class Decompiler
     /// <summary>
     /// Invoked after building the control flow graph.
     /// </summary>
-    public Action<Method> PostBuildCfg = (_) => { };
+    public Action<ControlFlowGraph> PostBuildCfg = (_) => { };
+
+    /// <summary>
+    /// Invoked after simplifying the control flow graph.
+    /// </summary>
+    public Action<ControlFlowGraph> PostSimplifyCfg = (_) => { };
 
     /// <summary>
     /// Invoked after decompilation.
@@ -90,10 +95,19 @@ public class Decompiler
         try
         {
             PreDecompile(method);
+
+            Info("Simplifying instructions...");
             Simplifier.Simplify(method, this);
             PostSimplify(method);
+
+            Info("Building CFG...");
             var cfg = ControlFlowGraph.Build(method);
-            PostBuildCfg(method);
+            PostBuildCfg(cfg);
+
+            Info("Simplifying CFG...");
+            Simplifier.Simplify(cfg, this);
+            PostSimplifyCfg(cfg);
+
             PostDecompile(method);
 
             ReplaceBodyWithException(definition, "Decompilation not implemented");

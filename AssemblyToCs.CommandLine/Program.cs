@@ -56,9 +56,11 @@ internal class Program
         {
             new MilInstruction(0x0, MilOpCode.Move, (2, MilOperand.Register), (0, MilOperand.Register)),
             new MilInstruction(0x1, MilOpCode.Add, (2, MilOperand.Register), (1, MilOperand.Register)),
-            new MilInstruction(0x3, MilOpCode.Call, (method2, MilOperand.Method), (2, MilOperand.Register),
+            new MilInstruction(0x2, MilOpCode.Call, (method2, MilOperand.Method), (2, MilOperand.Register),
                 (2, MilOperand.Register)),
-            new MilInstruction(0x4, MilOpCode.Return, (2, MilOperand.Register))
+            new MilInstruction(0x3, MilOpCode.Return, (2, MilOperand.Register)),
+            // unreachable
+            new MilInstruction(0x4, MilOpCode.Move, (2, MilOperand.Register), (0, MilOperand.Register))
         };
 
         /*var mil = new List<MilInstruction>();
@@ -101,10 +103,11 @@ internal class Program
 
         var decompiler = new Decompiler();
 
-        decompiler.PreDecompile = (_) => Console.WriteLine("PreDecompile invoked");
-        decompiler.PostSimplify = (_) => Console.WriteLine("PostSimplify invoked");
-        decompiler.PostBuildCfg = (_) => Console.WriteLine("PostBuildCfg invoked");
-        decompiler.PostDecompile = (_) => Console.WriteLine("PostDecompile invoked");
+        decompiler.PreDecompile = (_) => Console.WriteLine("    PreDecompile invoked");
+        decompiler.PostSimplify = (_) => Console.WriteLine("    PostSimplify invoked");
+        decompiler.PostBuildCfg = (_) => Console.WriteLine("    PostBuildCfg invoked");
+        decompiler.PostSimplifyCfg = (_) => Console.WriteLine("    PostSimplifyCfg invoked");
+        decompiler.PostDecompile = (_) => Console.WriteLine("    PostDecompile invoked");
 
         decompiler.InfoLog = (text, source) => Console.WriteLine($"{source} : {text}");
         decompiler.WarnLog = (text, source) => Console.WriteLine($"{source} [Warn] : {text}");
