@@ -44,34 +44,34 @@ internal class Program
         method2.ParameterDefinitions.Add(new ParameterDefinition(1, "num", 0));
         type.Methods.Add(method2);
 
-        var parameters = new List<(object, MilOperand)>()
+        var parameters = new List<object>()
         {
-            (0, MilOperand.Register),
-            (1, MilOperand.Register)
+            new MilRegister(0),
+            new MilRegister(1),
         };
 
         var mil = new List<MilInstruction>()
         {
-            new MilInstruction(0x0, MilOpCode.ShiftStack, (-0x28, MilOperand.Int)),
-            new MilInstruction(0x1, MilOpCode.Move, (2, MilOperand.Register), (0, MilOperand.Register)),
-            new MilInstruction(0x2, MilOpCode.Add, (2, MilOperand.Register), (1, MilOperand.Register)),
-            new MilInstruction(0x3, MilOpCode.Call, (method2, MilOperand.Method), (2, MilOperand.Register),
-                (2, MilOperand.Register)),
-            new MilInstruction(0x4, MilOpCode.ShiftStack, (0x28, MilOperand.Int)),
-            new MilInstruction(0x5, MilOpCode.Return, (2, MilOperand.Register)),
-            // Simplifier.RemoveUnreachableBlocks should remove these
-            new MilInstruction(0x6, MilOpCode.Add, ((2, 0x123), MilOperand.Memory), (0x123, MilOperand.Stack)),
-            new MilInstruction(0x7, MilOpCode.Add, ((2, 0x123), MilOperand.Memory), (0x123, MilOperand.Stack))
+            new MilInstruction(0x0, MilOpCode.ShiftStack, -0x28),
+            new MilInstruction(0x1, MilOpCode.Move, new MilRegister(2), new MilRegister(0)),
+            new MilInstruction(0x2, MilOpCode.Add, new MilRegister(2), new MilRegister(1)),
+            new MilInstruction(0x3, MilOpCode.Call, method2, new MilRegister(2), new MilRegister(2)),
+            new MilInstruction(0x4, MilOpCode.ShiftStack, 0x28),
+            new MilInstruction(0x5, MilOpCode.Return, new MilRegister(2)),
+            // simplifier should remove these
+            new MilInstruction(0x6, MilOpCode.Add, new MilMemoryLocation(2, 0x123), new MilStackOffset(0x123)),
+            new MilInstruction(0x7, MilOpCode.Xor, new MilRegister(0), new MilRegister(0)),
+            new MilInstruction(0x8, MilOpCode.Add, new MilMemoryLocation(2, 0x123), new MilStackOffset(0x123))
         };
 
         var decompilerMethod = new Method(method, mil, parameters);
 
         var decompiler = new Decompiler();
 
-        decompiler.PreDecompile = (method3) => Console.WriteLine("----- PreDecompile");
-        decompiler.PostSimplify = (method3) => Console.WriteLine("----- PostSimplify");
-        decompiler.PostBuildCfg = (method3) => Console.WriteLine("----- PostBuildCfg");
-        decompiler.PostDecompile = (method3) => Console.WriteLine("----- PostDecompile");
+        decompiler.PreDecompile = (method3) => Console.WriteLine("    ----- PreDecompile");
+        decompiler.PostSimplify = (method3) => Console.WriteLine("    ----- PostSimplify");
+        decompiler.PostBuildCfg = (method3) => Console.WriteLine("    ----- PostBuildCfg");
+        decompiler.PostDecompile = (method3) => Console.WriteLine("    ----- PostDecompile");
 
         decompiler.InfoLog = (text, source) => Console.WriteLine($"{source} : {text}");
         decompiler.WarnLog = (text, source) => Console.WriteLine($"{source} [Warn] : {text}");
@@ -88,7 +88,6 @@ internal class Program
 
         Console.WriteLine();
         Console.WriteLine(BuildGraph(ControlFlowGraph.Build(decompilerMethod)));
-        Console.WriteLine();
 
         var code = decompiler.DecompileAsString(decompilerMethod, workingDirectory);
         Console.WriteLine();
@@ -100,7 +99,6 @@ internal class Program
 
         Console.WriteLine();
         Console.WriteLine(BuildGraph(decompilerMethod.FlowGraph!));
-        Console.WriteLine();
 
         Console.WriteLine(code);
     }
@@ -123,7 +121,7 @@ internal class Program
                 node.WithColor("green");
 
             node.WithShape("box");
-            node.WithLabel(block.Instructions.Count == 0 ? "Entry" : $"{block.Id}\n\n{block}");
+            node.WithLabel(block.Instructions.Count == 0 ? "Entry" : $"Block {block.Id}\n\n{block}");
 
             foreach (var successor in block.Successors)
                 GetOrAddEdge(node, GetOrAddNode(successor.Id));

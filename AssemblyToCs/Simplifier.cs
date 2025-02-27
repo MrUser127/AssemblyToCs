@@ -25,10 +25,10 @@ public static class Simplifier
         foreach (var instruction in method.Instructions)
         {
             // xor reg, reg -> move reg, 0
-            if (instruction.OpCode == MilOpCode.Xor && instruction.Operands[0].Equals(instruction.Operands[1]))
+            if (instruction.OpCode == MilOpCode.Xor && instruction.Operands[0]!.Equals(instruction.Operands[1]))
             {
                 instruction.OpCode = MilOpCode.Move;
-                instruction.Operands[1] = (0, MilOperand.Int);
+                instruction.Operands[1] = 0;
                 count++;
             }
         }

@@ -61,17 +61,17 @@ public enum MilOpCode
     ShiftStack,
 
     /// <summary>
-    /// Call [method], [return], [arg1], [arg2]...
+    /// Call [method], [return (can be null)], [arg1], [arg2]...
     /// </summary>
     Call,
 
     /// <summary>
-    /// Jump [location]
+    /// Jump [instruction]
     /// </summary>
     Jump,
 
     /// <summary>
-    /// ConditionalJump [location], [condition]
+    /// ConditionalJump [instruction], [condition]
     /// </summary>
     ConditionalJump,
 

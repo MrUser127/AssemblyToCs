@@ -30,8 +30,8 @@ public class ControlFlowGraph
         if (instructions.Count == 0)
             return cfg;
 
-        cfg.MarkBlockStarts(instructions);
-        cfg.GetBlockEdges(instructions, out var edges);
+        MarkBlockStarts(instructions);
+        GetBlockEdges(instructions, out var edges);
         cfg.CreateBlocks(instructions);
 
         foreach (var edge in edges)
@@ -54,7 +54,7 @@ public class ControlFlowGraph
         return cfg;
     }
 
-    private void MarkBlockStarts(List<MilInstruction> instructions)
+    private static void MarkBlockStarts(List<MilInstruction> instructions)
     {
         var isNextBlockStart = true;
 
@@ -82,7 +82,8 @@ public class ControlFlowGraph
         }
     }
 
-    private void GetBlockEdges(List<MilInstruction> instructions, out List<(MilInstruction, MilInstruction)> edges)
+    private static void GetBlockEdges(List<MilInstruction> instructions,
+        out List<(MilInstruction, MilInstruction)> edges)
     {
         edges = new List<(MilInstruction, MilInstruction)>();
 
@@ -138,7 +139,7 @@ public class ControlFlowGraph
     }
 
     private static MilInstruction GetBranchTarget(MilInstruction instruction) =>
-        (MilInstruction)instruction.Operands[0].Item1;
+        (MilInstruction)instruction.Operands[0]!;
 
     private Block? GetBlockByInstruction(MilInstruction instruction) =>
         Blocks.FirstOrDefault(block => block.Instructions.Any(i => i == instruction));

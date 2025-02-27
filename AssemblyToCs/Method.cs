@@ -6,17 +6,20 @@ namespace AssemblyToCs;
 /// <summary>
 /// A method.
 /// </summary>
-public class Method
+public class Method(
+    MethodDefinition definition,
+    List<MilInstruction> instructions,
+    List<object> parameters)
 {
     /// <summary>
     /// The definition.
     /// </summary>
-    public MethodDefinition Definition;
+    public readonly MethodDefinition Definition = definition;
 
     /// <summary>
     /// All instructions for the method.
     /// </summary>
-    public List<MilInstruction> Instructions;
+    public List<MilInstruction> Instructions = instructions;
 
     /// <summary>
     /// The control flow graph, null if not built yet.
@@ -26,21 +29,7 @@ public class Method
     /// <summary>
     /// Parameter locations.
     /// </summary>
-    public List<(object, MilOperand)> Parameters;
-
-    /// <summary>
-    /// Creates a new method.
-    /// </summary>
-    /// <param name="definition">The definition.</param>
-    /// <param name="instructions">All instructions for the method.</param>
-    /// <param name="parameters">Parameter locations.</param>
-    public Method(MethodDefinition definition, List<MilInstruction> instructions,
-        List<(object, MilOperand)> parameters)
-    {
-        Definition = definition;
-        Instructions = instructions;
-        Parameters = parameters;
-    }
+    public List<object> Parameters = parameters;
 
     public override string ToString() => Definition.ToString();
 }
