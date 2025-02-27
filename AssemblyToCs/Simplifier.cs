@@ -15,7 +15,7 @@ public static class Simplifier
     public static void Simplify(Method method, Decompiler decompiler)
     {
         ReplaceXorWithMove(method, decompiler);
-        RemoveUnreachableBlocks(method.FlowGraph!, decompiler);
+        RemoveUnreachableBlocks(method, decompiler);
     }
 
     private static void ReplaceXorWithMove(Method method, Decompiler decompiler)
@@ -37,8 +37,10 @@ public static class Simplifier
             decompiler.Info($"{count} xor reg, reg instructions replaced with move reg, 0", "Simplifier");
     }
 
-    private static void RemoveUnreachableBlocks(ControlFlowGraph cfg, Decompiler decompiler)
+    private static void RemoveUnreachableBlocks(Method method, Decompiler decompiler)
     {
+        var cfg = method.FlowGraph!;
+
         if (cfg.Blocks.Count == 0)
             return;
 
@@ -63,14 +65,21 @@ public static class Simplifier
         }
 
         var unreachable = cfg.Blocks.Where(block => !visited.Remove(block)).ToList();
+        var count = 0;
 
         foreach (var block in unreachable)
         {
+            foreach (var instruction in block.Instructions)
+            {
+                method.Instructions.Remove(instruction);
+                count++;
+            }
+
             block.Successors.Clear();
             cfg.Blocks.Remove(block);
         }
 
         if (unreachable.Count > 0)
-            decompiler.Info($"Removed {unreachable.Count} unreachable blocks", "Simplifier");
+            decompiler.Info($"Removed {unreachable.Count} unreachable blocks and {count} instructions", "Simplifier");
     }
 }

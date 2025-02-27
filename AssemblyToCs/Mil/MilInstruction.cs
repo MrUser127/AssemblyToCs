@@ -54,21 +54,49 @@ public class MilInstruction
     /// <returns>The operand.</returns>
     public object GetOp(int i) => Operands[i].Item1;
 
-    public override string ToString() => $"{Offset:X} {OpCode} {string.Join(", ", Operands.Select(FormatOperand))}";
+    public override string ToString() => $"{Offset:X4} {OpCode} {string.Join(", ", Operands.Select(FormatOperand))}";
 
     private static string FormatOperand((object, MilOperand) operand)
     {
-        return operand.Item2 switch
+        // i tried to do this with switch and ternary operators but it was way too messy
+
+        var type = operand.Item2;
+        var value = operand.Item1;
+
+        switch (type)
         {
-            MilOperand.Int => operand.Item1.ToString()!,
-            MilOperand.Float => operand.Item1.ToString()!,
-            MilOperand.String => $"\"{operand.Item1}\"",
-            MilOperand.Method => ((MethodDefinition)operand.Item1).Name!,
-            MilOperand.Branch => $"@{((MilInstruction)operand.Item1).Offset:X}",
-            MilOperand.Register => $"reg{operand.Item1}",
-            MilOperand.Memory => $"mem:0x{operand.Item1:X}",
-            MilOperand.Stack => $"stk:{operand.Item1}",
-            _ => operand.Item1.ToString()!
-        };
+            case MilOperand.None:
+                return "none";
+            case MilOperand.Int:
+            {
+                var intOp = (int)operand.Item1;
+                if (intOp >= 0)
+                    return $"{intOp:X2}";
+                return $"-{-intOp:X2}";
+            }
+            case MilOperand.Float:
+                return value.ToString()!;
+            case MilOperand.String:
+                return $"\"{value}\"";
+            case MilOperand.Method:
+                return ((MethodDefinition)value).Name!;
+            case MilOperand.Branch:
+                return "@" + ((MilInstruction)value).Offset.ToString("X4");
+            case MilOperand.Register:
+                return $"reg{value}";
+            case MilOperand.Memory:
+            {
+                var memory = ((int, int))value;
+                if (memory.Item1 == -1)
+                    return $"[{memory.Item2:X2}]";
+                if (memory.Item2 == -1)
+                    return $"[reg{memory.Item1}]";
+                return $"[reg{memory.Item1}+{memory.Item2:X2}]";
+            }
+            case MilOperand.Stack:
+                return $"stack[{(int)value:X2}]";
+            default:
+                return value.ToString()!;
+        }
     }
 }

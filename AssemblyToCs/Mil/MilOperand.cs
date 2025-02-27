@@ -26,7 +26,7 @@ public enum MilOperand
     Register,
 
     /// <summary>
-    /// Ulong. (address)
+    /// (int, int) (memory at register number + int), use -1 for none.
     /// </summary>
     Memory,
 

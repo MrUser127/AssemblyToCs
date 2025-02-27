@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Metadata.Tables;
@@ -51,11 +52,16 @@ internal class Program
 
         var mil = new List<MilInstruction>()
         {
-            new MilInstruction(0x0, MilOpCode.Move, (2, MilOperand.Register), (0, MilOperand.Register)),
-            new MilInstruction(0x1, MilOpCode.Add, (2, MilOperand.Register), (1, MilOperand.Register)),
-            new MilInstruction(0x2, MilOpCode.Call, (method2, MilOperand.Method), (2, MilOperand.Register),
+            new MilInstruction(0x0, MilOpCode.ShiftStack, (-0x28, MilOperand.Int)),
+            new MilInstruction(0x1, MilOpCode.Move, (2, MilOperand.Register), (0, MilOperand.Register)),
+            new MilInstruction(0x2, MilOpCode.Add, (2, MilOperand.Register), (1, MilOperand.Register)),
+            new MilInstruction(0x3, MilOpCode.Call, (method2, MilOperand.Method), (2, MilOperand.Register),
                 (2, MilOperand.Register)),
-            new MilInstruction(0x3, MilOpCode.Return, (2, MilOperand.Register))
+            new MilInstruction(0x4, MilOpCode.ShiftStack, (0x28, MilOperand.Int)),
+            new MilInstruction(0x5, MilOpCode.Return, (2, MilOperand.Register)),
+            // Simplifier.RemoveUnreachableBlocks should remove these
+            new MilInstruction(0x6, MilOpCode.Add, ((2, 0x123), MilOperand.Memory), (0x123, MilOperand.Stack)),
+            new MilInstruction(0x7, MilOpCode.Add, ((2, 0x123), MilOperand.Memory), (0x123, MilOperand.Stack))
         };
 
         var decompilerMethod = new Method(method, mil, parameters);
@@ -77,21 +83,26 @@ internal class Program
 
         Console.WriteLine($"Method: {method}");
 
-        Console.WriteLine();
         Console.WriteLine("MIL:");
-        Console.WriteLine(string.Join(Environment.NewLine, mil));
+        Console.WriteLine(string.Join(Environment.NewLine, mil.Select(i => "    " + i)));
 
         Console.WriteLine();
-        var code = decompiler.DecompileAsString(decompilerMethod, workingDirectory);
+        Console.WriteLine(BuildGraph(ControlFlowGraph.Build(decompilerMethod)));
+        Console.WriteLine();
 
+        var code = decompiler.DecompileAsString(decompilerMethod, workingDirectory);
+        Console.WriteLine();
         var decompiledAssemblyPath = Path.Combine(workingDirectory, "TempAssembly_decompiled.dll");
         module.Write(decompiledAssemblyPath);
 
+        Console.WriteLine("MIL:");
+        Console.WriteLine(string.Join(Environment.NewLine, decompilerMethod.Instructions.Select(i => "    " + i)));
+
         Console.WriteLine();
-        Console.WriteLine(code);
+        Console.WriteLine(BuildGraph(decompilerMethod.FlowGraph!));
         Console.WriteLine();
 
-        Console.WriteLine(BuildGraph(ControlFlowGraph.Build(decompilerMethod)));
+        Console.WriteLine(code);
     }
 
     private static string BuildGraph(ControlFlowGraph graph)

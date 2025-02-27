@@ -56,6 +56,11 @@ public enum MilOpCode
     Pop,
 
     /// <summary>
+    /// ShiftStack [offset]
+    /// </summary>
+    ShiftStack,
+
+    /// <summary>
     /// Call [method], [return], [arg1], [arg2]...
     /// </summary>
     Call,
