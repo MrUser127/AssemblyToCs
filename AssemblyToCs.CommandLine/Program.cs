@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Metadata.Tables;
@@ -14,6 +15,11 @@ namespace AssemblyToCs.CommandLine;
 
 internal class Program
 {
+    public struct InstructionTarget(int offset)
+    {
+        public int Offset = offset;
+    }
+
     private static void Main(string[] args)
     {
         var module = new ModuleDefinition("TheAssembly");
@@ -52,7 +58,7 @@ internal class Program
 
         var mil = new List<MilInstruction>()
         {
-            new MilInstruction(0x0, MilOpCode.ShiftStack, -0x28),
+            new MilInstruction(0x0, MilOpCode.ShiftStack, 0x123),
             new MilInstruction(0x1, MilOpCode.Move, new MilRegister(2), new MilRegister(0)),
             new MilInstruction(0x2, MilOpCode.Add, new MilRegister(2), new MilRegister(1)),
             new MilInstruction(0x3, MilOpCode.Call, method2, new MilRegister(2), new MilRegister(2)),
@@ -62,7 +68,34 @@ internal class Program
             new MilInstruction(0x6, MilOpCode.Add, new MilMemoryLocation(2, 0x123), new MilStackOffset(0x123)),
             new MilInstruction(0x7, MilOpCode.Xor, new MilRegister(0), new MilRegister(0)),
             new MilInstruction(0x8, MilOpCode.Add, new MilMemoryLocation(2, 0x123), new MilStackOffset(0x123))
+
+            /*new MilInstruction(0x0, MilOpCode.ShiftStack, -0x28),
+            new MilInstruction(0x1, MilOpCode.CheckNotEqual, new MilRegister(500),
+                new MilMemoryLocation(null, 0x57BBDF0), 0),
+            new MilInstruction(0x2, MilOpCode.ConditionalJump, new InstructionTarget(0x6), new MilRegister(500)),
+            new MilInstruction(0x3, MilOpCode.Move, new MilRegister(0), 0x5477120),
+            new MilInstruction(0x4, MilOpCode.Call, method2, new MilMemoryLocation(null, 0x57BBDF0),
+                new MilMemoryLocation(null, 0x57BBDF0)),
+            new MilInstruction(0x5, MilOpCode.Move, new MilMemoryLocation(null, 0x57BBDF0), 1),
+            new MilInstruction(0x6, MilOpCode.Move, new MilRegister(0), new MilMemoryLocation(null, 0x5477120)),
+            new MilInstruction(0x7, MilOpCode.CheckNotEqual, new MilRegister(500), new MilMemoryLocation(0, 0x0e0), 0),
+            new MilInstruction(0x8, MilOpCode.ConditionalJump, new InstructionTarget(0xb), new MilRegister(500)),
+            new MilInstruction(0x9, MilOpCode.ShiftStack, 0x28),
+            new MilInstruction(0xa, MilOpCode.Call, method2, new MilMemoryLocation(null, 0x57BBDF0),
+                new MilMemoryLocation(null, 0x57BBDF0)),
+            new MilInstruction(0xb, MilOpCode.ShiftStack, 0x28),
+            new MilInstruction(0xc, MilOpCode.Return)*/
         };
+
+        foreach (var instruction in mil)
+        {
+            if (instruction.OpCode is MilOpCode.Jump or MilOpCode.ConditionalJump)
+            {
+                var target = (InstructionTarget)instruction.Operands[0]!;
+                var targetInstruction = mil.First(i => i.Offset == target.Offset);
+                instruction.Operands[0] = targetInstruction;
+            }
+        }
 
         var decompilerMethod = new Method(method, mil, parameters);
 
@@ -71,6 +104,7 @@ internal class Program
         decompiler.PreDecompile = (method3) => Console.WriteLine("    ----- PreDecompile");
         decompiler.PostSimplify = (method3) => Console.WriteLine("    ----- PostSimplify");
         decompiler.PostBuildCfg = (method3) => Console.WriteLine("    ----- PostBuildCfg");
+        decompiler.PostBuildDominance = (method3) => Console.WriteLine("    ----- PostBuildDominance");
         decompiler.PostDecompile = (method3) => Console.WriteLine("    ----- PostDecompile");
 
         decompiler.InfoLog = (text, source) => Console.WriteLine($"{source} : {text}");
@@ -85,9 +119,7 @@ internal class Program
 
         Console.WriteLine("MIL:");
         Console.WriteLine(string.Join(Environment.NewLine, mil.Select(i => "    " + i)));
-
         Console.WriteLine();
-        Console.WriteLine(BuildGraph(ControlFlowGraph.Build(decompilerMethod)));
 
         var code = decompiler.DecompileAsString(decompilerMethod, workingDirectory);
         Console.WriteLine();
@@ -98,13 +130,15 @@ internal class Program
         Console.WriteLine(string.Join(Environment.NewLine, decompilerMethod.Instructions.Select(i => "    " + i)));
 
         Console.WriteLine();
-        Console.WriteLine(BuildGraph(decompilerMethod.FlowGraph!));
+        Console.WriteLine(BuildGraph(decompilerMethod));
 
         Console.WriteLine(code);
     }
 
-    private static string BuildGraph(ControlFlowGraph graph)
+    private static string BuildGraph(Method method)
     {
+        var graph = method.FlowGraph!;
+
         var directedGraph = new DotGraph()
             .WithIdentifier("ControlFlowGraph")
             .Directed()
@@ -121,7 +155,21 @@ internal class Program
                 node.WithColor("green");
 
             node.WithShape("box");
-            node.WithLabel(block.Instructions.Count == 0 ? "Entry" : $"Block {block.Id}\n\n{block}");
+
+            if (block.Instructions.Count == 0)
+            {
+                node.WithLabel("Entry");
+            }
+            else
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("Block " + block.Id);
+                if (method.Dominance!.DominanceTree.TryGetValue(block, out var doms))
+                    sb.AppendLine($"Immediate dominators: {string.Join(", ", doms.Select(d => d.Id))}");
+                sb.AppendLine();
+                sb.Append(string.Join(Environment.NewLine, block.Instructions));
+                node.WithLabel(sb.ToString());
+            }
 
             foreach (var successor in block.Successors)
                 GetOrAddEdge(node, GetOrAddNode(successor.Id));

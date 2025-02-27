@@ -33,7 +33,7 @@ public class MilInstruction(uint offset, MilOpCode opCode, params object?[] oper
     {
         return operand switch
         {
-            int num => num > 0 ? $"{num:X2}" : $"-{-num:X2}",
+            int num => num < 0 ? $"-{-num:X2}" : $"{num:X2}",
             string text => $"\"{text}\"",
             MethodDefinition method => method.Name!,
             MilInstruction instruction => $"@{instruction.Offset:X2}",

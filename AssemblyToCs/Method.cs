@@ -27,6 +27,11 @@ public class Method(
     public ControlFlowGraph? FlowGraph;
 
     /// <summary>
+    /// Dominance info, null if not built yet.
+    /// </summary>
+    public Dominance? Dominance;
+
+    /// <summary>
     /// Parameter locations.
     /// </summary>
     public List<object> Parameters = parameters;

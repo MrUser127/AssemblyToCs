@@ -38,6 +38,11 @@ public class Decompiler
     public Action<Method> PostSimplify = (_) => { };
 
     /// <summary>
+    /// Invoked after building dominance info.
+    /// </summary>
+    public Action<Method> PostBuildDominance = (_) => { };
+
+    /// <summary>
     /// Invoked after decompilation.
     /// </summary>
     public Action<Method> PostDecompile = (_) => { };
@@ -99,6 +104,11 @@ public class Decompiler
             Info("Simplifying...");
             Simplifier.Simplify(method, this);
             PostSimplify(method);
+
+            Info("Building dominance info...");
+            var dominance = Dominance.Build(method);
+            method.Dominance = dominance;
+            PostBuildDominance(method);
 
             PostDecompile(method);
 

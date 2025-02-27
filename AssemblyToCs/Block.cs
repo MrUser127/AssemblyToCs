@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using AssemblyToCs.Mil;
 
 namespace AssemblyToCs;
@@ -6,6 +7,7 @@ namespace AssemblyToCs;
 /// <summary>
 /// A block in control flow graph.
 /// </summary>
+[DebuggerDisplay("Id = {Id}")]
 public class Block
 {
     /// <summary>
