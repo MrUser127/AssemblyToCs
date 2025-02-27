@@ -28,19 +28,14 @@ public class Decompiler
     public Action<Method> PreDecompile = (_) => { };
 
     /// <summary>
-    /// Invoked after il simplification.
-    /// </summary>
-    public Action<Method> PostSimplify = (_) => { };
-
-    /// <summary>
     /// Invoked after building the control flow graph.
     /// </summary>
     public Action<ControlFlowGraph> PostBuildCfg = (_) => { };
 
     /// <summary>
-    /// Invoked after simplifying the control flow graph.
+    /// Invoked after simplifying.
     /// </summary>
-    public Action<ControlFlowGraph> PostSimplifyCfg = (_) => { };
+    public Action<ControlFlowGraph> PostSimplify = (_) => { };
 
     /// <summary>
     /// Invoked after decompilation.
@@ -90,23 +85,21 @@ public class Decompiler
     public void Decompile(Method method)
     {
         var definition = method.Definition;
+        var instructions = method.Instructions;
         Info($"Decompiling {definition.Name}...");
 
         try
         {
             PreDecompile(method);
 
-            Info("Simplifying instructions...");
-            Simplifier.Simplify(method, this);
-            PostSimplify(method);
-
             Info("Building CFG...");
             var cfg = ControlFlowGraph.Build(method);
+            method.FlowGraph = cfg;
             PostBuildCfg(cfg);
 
-            Info("Simplifying CFG...");
-            Simplifier.Simplify(cfg, this);
-            PostSimplifyCfg(cfg);
+            Info("Simplifying...");
+            Simplifier.Simplify(method, this);
+            PostSimplify(cfg);
 
             PostDecompile(method);
 

@@ -15,16 +15,7 @@ public static class Simplifier
     public static void Simplify(Method method, Decompiler decompiler)
     {
         ReplaceXorWithMove(method, decompiler);
-    }
-
-    /// <summary>
-    /// Applies all simplifications to a control flow graph.
-    /// </summary>
-    /// <param name="cfg">What graph?</param>
-    /// <param name="decompiler">The decompiler.</param>
-    public static void Simplify(ControlFlowGraph cfg, Decompiler decompiler)
-    {
-        RemoveUnreachableBlocks(cfg, decompiler);
+        RemoveUnreachableBlocks(method.FlowGraph!, decompiler);
     }
 
     private static void ReplaceXorWithMove(Method method, Decompiler decompiler)
@@ -48,8 +39,10 @@ public static class Simplifier
 
     private static void RemoveUnreachableBlocks(ControlFlowGraph cfg, Decompiler decompiler)
     {
-        var reachable = new List<Block>();
+        if (cfg.Blocks.Count == 0)
+            return;
 
+        var reachable = new List<Block>();
         var visited = new List<Block>();
         visited.Add(cfg.EntryBlock);
         reachable.Add(cfg.EntryBlock);
@@ -73,9 +66,11 @@ public static class Simplifier
 
         foreach (var block in unreachable)
         {
-            decompiler.Info($"Removing unreachable block: {block.Id}", "Simplifier");
             block.Successors.Clear();
             cfg.Blocks.Remove(block);
         }
+
+        if (unreachable.Count > 0)
+            decompiler.Info($"Removed {unreachable.Count} unreachable blocks", "Simplifier");
     }
 }

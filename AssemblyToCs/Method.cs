@@ -19,6 +19,11 @@ public class Method
     public List<MilInstruction> Instructions;
 
     /// <summary>
+    /// The control flow graph, null if not built yet.
+    /// </summary>
+    public ControlFlowGraph? FlowGraph;
+
+    /// <summary>
     /// Parameter locations.
     /// </summary>
     public List<(object, MilOperand)> Parameters;
