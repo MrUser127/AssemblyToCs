@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using AsmResolver;
 using AsmResolver.DotNet;
-using AsmResolver.DotNet.Collections;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Metadata.Tables;
 using AssemblyToCs.Mil;
@@ -63,6 +60,17 @@ internal class Program
 
         var decompilerMethod = new Method(method, mil, parameters);
 
+        var decompiler = new Decompiler();
+
+        decompiler.PreDecompile = (method3) => Console.WriteLine("----- PreDecompile");
+        decompiler.PostSimplify = (method3) => Console.WriteLine("----- PostSimplify");
+        decompiler.PostBuildCfg = (method3) => Console.WriteLine("----- PostBuildCfg");
+        decompiler.PostDecompile = (method3) => Console.WriteLine("----- PostDecompile");
+
+        decompiler.InfoLog = (text, source) => Console.WriteLine($"{source} : {text}");
+        decompiler.WarnLog = (text, source) => Console.WriteLine($"{source} [Warn] : {text}");
+        decompiler.ErrorLog = (text, source) => Console.WriteLine($"{source} [Error] : {text}");
+
         var workingDirectory = Path.GetDirectoryName(Environment.ProcessPath!)!;
         var assemblyPath = Path.Combine(workingDirectory, "TempAssembly.dll");
         module.Write(assemblyPath);
@@ -73,33 +81,20 @@ internal class Program
         Console.WriteLine("MIL:");
         Console.WriteLine(string.Join(Environment.NewLine, mil));
 
-        //var cfg = ControlFlowGraph.Build(decompilerMethod);
-        //WriteGraph(cfg, Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "Cfg.dot"));
-
-        var decompiler = new Decompiler();
-
-        decompiler.PreDecompile = (_) => Console.WriteLine("    PreDecompile invoked");
-        decompiler.PostSimplify = (_) => Console.WriteLine("    PostSimplify invoked");
-        decompiler.PostBuildCfg = (_) => Console.WriteLine("    PostBuildCfg invoked");
-        decompiler.PostDecompile = (_) => Console.WriteLine("    PostDecompile invoked");
-
-        decompiler.InfoLog = (text, source) => Console.WriteLine($"{source} : {text}");
-        decompiler.WarnLog = (text, source) => Console.WriteLine($"{source} [Warn] : {text}");
-        decompiler.ErrorLog = (text, source) => Console.WriteLine($"{source} [Error] : {text}");
-
         Console.WriteLine();
-        Console.WriteLine("Decompiling...");
         var code = decompiler.DecompileAsString(decompilerMethod, workingDirectory);
 
         var decompiledAssemblyPath = Path.Combine(workingDirectory, "TempAssembly_decompiled.dll");
         module.Write(decompiledAssemblyPath);
 
         Console.WriteLine();
-        Console.WriteLine("Decompiled code:");
         Console.WriteLine(code);
+        Console.WriteLine();
+
+        Console.WriteLine(BuildGraph(ControlFlowGraph.Build(decompilerMethod)));
     }
 
-    private static void WriteGraph(ControlFlowGraph graph, string path)
+    private static string BuildGraph(ControlFlowGraph graph)
     {
         var directedGraph = new DotGraph()
             .WithIdentifier("ControlFlowGraph")
@@ -127,9 +122,7 @@ internal class Program
         var context = new CompilationContext(writer, new CompilationOptions());
         directedGraph.CompileAsync(context);
         var result = writer.GetStringBuilder().ToString();
-        File.WriteAllText(path, result);
-
-        return;
+        return result;
 
         DotEdge GetOrAddEdge(DotNode from, DotNode to)
         {

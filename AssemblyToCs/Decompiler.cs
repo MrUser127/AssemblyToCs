@@ -30,12 +30,12 @@ public class Decompiler
     /// <summary>
     /// Invoked after building the control flow graph.
     /// </summary>
-    public Action<ControlFlowGraph> PostBuildCfg = (_) => { };
+    public Action<Method> PostBuildCfg = (_) => { };
 
     /// <summary>
     /// Invoked after simplifying.
     /// </summary>
-    public Action<ControlFlowGraph> PostSimplify = (_) => { };
+    public Action<Method> PostSimplify = (_) => { };
 
     /// <summary>
     /// Invoked after decompilation.
@@ -85,7 +85,6 @@ public class Decompiler
     public void Decompile(Method method)
     {
         var definition = method.Definition;
-        var instructions = method.Instructions;
         Info($"Decompiling {definition.Name}...");
 
         try
@@ -95,11 +94,11 @@ public class Decompiler
             Info("Building CFG...");
             var cfg = ControlFlowGraph.Build(method);
             method.FlowGraph = cfg;
-            PostBuildCfg(cfg);
+            PostBuildCfg(method);
 
             Info("Simplifying...");
             Simplifier.Simplify(method, this);
-            PostSimplify(cfg);
+            PostSimplify(method);
 
             PostDecompile(method);
 

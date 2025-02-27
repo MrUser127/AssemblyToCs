@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <Authors>MrUser127</Authors>
-        <Product>Assembly to C# command line app</Product>
-        <Description>Assembly to C# decompiler command line app</Description>
+        <Product>Assembly to C# console app</Product>
+        <Description>Assembly to C# decompiler console app</Description>
         <OutputType>Exe</OutputType>
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
