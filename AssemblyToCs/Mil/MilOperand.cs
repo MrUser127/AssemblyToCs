@@ -1,4 +1,4 @@
-﻿namespace AssemblyToCs.MIL;
+﻿namespace AssemblyToCs.Mil;
 
 /// <summary>
 /// All medium level IL operand types.

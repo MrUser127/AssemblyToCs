@@ -1,4 +1,4 @@
-﻿namespace AssemblyToCs.MIL;
+﻿namespace AssemblyToCs.Mil;
 
 /// <summary>
 /// All medium level IL opcodes.
@@ -29,6 +29,46 @@ public enum MilOpCode
     /// ConditionalJump [location], [condition]
     /// </summary>
     ConditionalJump,
+
+    /// <summary>
+    /// Add [dest], [src]
+    /// </summary>
+    Add,
+
+    /// <summary>
+    /// Subtract [dest], [src]
+    /// </summary>
+    Subtract,
+
+    /// <summary>
+    /// Multiply [dest], [src]
+    /// </summary>
+    Multiply,
+
+    /// <summary>
+    /// Divide [dest], [src]
+    /// </summary>
+    Divide,
+
+    /// <summary>
+    /// Xor [dest], [src]
+    /// </summary>
+    Xor,
+
+    /// <summary>
+    /// Push [src]
+    /// </summary>
+    Push,
+
+    /// <summary>
+    /// Pop [dest]
+    /// </summary>
+    Pop,
+
+    /// <summary>
+    /// Call [method], [return], [arg1], [arg2]...
+    /// </summary>
+    Call,
 
     /// <summary>
     /// CheckEqual [src1], [src2]
@@ -68,45 +108,5 @@ public enum MilOpCode
     /// <summary>
     /// CheckNotSign [src]
     /// </summary>
-    CheckNotSign,
-
-    /// <summary>
-    /// Push [src]
-    /// </summary>
-    Push,
-
-    /// <summary>
-    /// Pop [dest]
-    /// </summary>
-    Pop,
-
-    /// <summary>
-    /// Call [method], [return], [arg1], [arg2]...
-    /// </summary>
-    Call,
-
-    /// <summary>
-    /// Add [dest], [src]
-    /// </summary>
-    Add,
-
-    /// <summary>
-    /// Subtract [dest], [src]
-    /// </summary>
-    Subtract,
-
-    /// <summary>
-    /// Multiply [dest], [src]
-    /// </summary>
-    Multiply,
-
-    /// <summary>
-    /// Divide [dest], [src]
-    /// </summary>
-    Divide,
-
-    /// <summary>
-    /// Xor [dest], [src]
-    /// </summary>
-    Xor
+    CheckNotSign
 }

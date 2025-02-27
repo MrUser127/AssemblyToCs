@@ -4,7 +4,7 @@ using AsmResolver.PE.DotNet.Cil;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.TypeSystem;
-using AssemblyToCs.MIL;
+using AssemblyToCs.Mil;
 
 namespace AssemblyToCs;
 
@@ -26,6 +26,16 @@ public class Decompiler
     /// Invoked before starting decompilation.
     /// </summary>
     public Action<Method> PreDecompile = (_) => { };
+
+    /// <summary>
+    /// Invoked after il simplification.
+    /// </summary>
+    public Action<Method> PostSimplify = (_) => { };
+
+    /// <summary>
+    /// Invoked after building the control flow graph.
+    /// </summary>
+    public Action<Method> PostBuildCfg = (_) => { };
 
     /// <summary>
     /// Invoked after decompilation.
@@ -81,6 +91,9 @@ public class Decompiler
         {
             PreDecompile(method);
             Simplifier.Simplify(method, this);
+            PostSimplify(method);
+            var cfg = ControlFlowGraph.Build(method);
+            PostBuildCfg(method);
             PostDecompile(method);
 
             ReplaceBodyWithException(definition, "Decompilation not implemented");

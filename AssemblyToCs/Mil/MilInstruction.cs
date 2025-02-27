@@ -1,6 +1,6 @@
 ﻿using AsmResolver.DotNet;
 
-namespace AssemblyToCs.MIL;
+namespace AssemblyToCs.Mil;
 
 /// <summary>
 /// Medium level IL instruction.
@@ -21,6 +21,11 @@ public class MilInstruction
     /// Operands.
     /// </summary>
     public (object, MilOperand)[] Operands;
+
+    /// <summary>
+    /// Is this instruction the start of a block?
+    /// </summary>
+    public bool IsBlockStart = false;
 
     /// <summary>
     /// Creates a new instruction.
