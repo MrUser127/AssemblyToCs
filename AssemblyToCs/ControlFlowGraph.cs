@@ -35,13 +35,13 @@ public class ControlFlowGraph
         Blocks = [EntryBlock, ExitBlock];
     }
 
-    private static bool TryGetBranchTargetOffset(MilInstruction instruction, out uint offset)
+    private static bool TryGetBranchTargetOffset(MilInstruction instruction, out int offset)
     {
         offset = 0;
 
         try
         {
-            offset = ((MilInstruction)instruction.Operands[0]!).Offset;
+            offset = ((MilInstruction)instruction.Operands[0]!).Index;
             return true;
         }
         catch
@@ -78,7 +78,7 @@ public class ControlFlowGraph
                     {
                         var jumpBlock = new Block() { Id = _nextId++ };
                         Blocks.Add(jumpBlock);
-                        if (TryGetBranchTargetOffset(instructions[i], out uint jumpTargetIndex))
+                        if (TryGetBranchTargetOffset(instructions[i], out var jumpTargetIndex))
                             currentBlock.IsDirty = true;
                         else
                             AddDirectedEdge(currentBlock, ExitBlock);
@@ -91,7 +91,11 @@ public class ControlFlowGraph
                     }
 
                     break;
-                case MilOpCode.ConditionalJump:
+                case MilOpCode.JumpTrue:
+                case MilOpCode.JumpFalse:
+                case MilOpCode.JumpEqual:
+                case MilOpCode.JumpGreater:
+                case MilOpCode.JumpLess:
                     currentBlock.AddInstruction(instructions[i]);
                     if (!isLast)
                     {
@@ -115,6 +119,21 @@ public class ControlFlowGraph
                         Blocks.Add(returnBlock);
                         AddDirectedEdge(currentBlock, ExitBlock);
                         currentBlock = returnBlock;
+                    }
+                    else
+                    {
+                        AddDirectedEdge(currentBlock, ExitBlock);
+                    }
+
+                    break;
+                case MilOpCode.Call:
+                    currentBlock.AddInstruction(instructions[i]);
+                    if (!isLast)
+                    {
+                        var callBlock = new Block() { Id = _nextId++ };
+                        Blocks.Add(callBlock);
+                        AddDirectedEdge(currentBlock, callBlock);
+                        currentBlock = callBlock;
                     }
                     else
                     {

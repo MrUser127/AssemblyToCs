@@ -9,7 +9,8 @@ namespace AssemblyToCs;
 public class Method(
     MethodDefinition definition,
     List<MilInstruction> instructions,
-    List<object> parameters)
+    List<object> parameters,
+    int archSize)
 {
     /// <summary>
     /// The definition.
@@ -22,6 +23,16 @@ public class Method(
     public List<MilInstruction> Instructions = instructions;
 
     /// <summary>
+    /// Parameter locations.
+    /// </summary>
+    public List<object> Parameters = parameters;
+
+    /// <summary>
+    /// Architecture size. (4 for 32 bit and 8 for 64 bit)
+    /// </summary>
+    public int ArchSize = archSize;
+
+    /// <summary>
     /// The control flow graph, null if not built yet.
     /// </summary>
     public ControlFlowGraph? FlowGraph;
@@ -31,10 +42,6 @@ public class Method(
     /// </summary>
     public Dominance? Dominance;
 
-    /// <summary>
-    /// Parameter locations.
-    /// </summary>
-    public List<object> Parameters = parameters;
 
     public override string ToString() => Definition.ToString();
 }

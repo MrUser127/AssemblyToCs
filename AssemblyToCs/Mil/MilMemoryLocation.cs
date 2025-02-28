@@ -20,7 +20,12 @@ public struct MilMemoryLocation(int? register, int? offset) : IEquatable<MilMemo
     public override string ToString()
     {
         if (Register == null)
+        {
+            if (Offset < 0)
+                return $"[-{-Offset:X2}]";
             return $"[{Offset:X2}]";
+        }
+
         if (Offset == null)
             return $"[reg{Register}]";
 
@@ -31,13 +36,17 @@ public struct MilMemoryLocation(int? register, int? offset) : IEquatable<MilMemo
             sb.Append("reg" + Register);
 
         if (Register != null && Offset > 0)
+        {
             sb.Append('+');
+            sb.Append(((int)Offset).ToString("X2"));
+        }
         else
+        {
             sb.Append('-');
+            sb.Append((-(int)Offset).ToString("X2"));
+        }
 
-        sb.Append(((int)Offset).ToString("X2"));
-
-        sb.Append(']');
+        sb.Append($"]");
         return sb.ToString();
     }
 
@@ -53,11 +62,9 @@ public struct MilMemoryLocation(int? register, int? offset) : IEquatable<MilMemo
 
     public override bool Equals(object? obj)
     {
-        if (obj is not MilMemoryLocation operand)
+        if (obj is not MilMemoryLocation memoryLocation)
             return false;
-        if (Register != operand.Register)
-            return false;
-        return Offset == operand.Offset;
+        return Equals(memoryLocation);
     }
 
     public bool Equals(MilMemoryLocation other)

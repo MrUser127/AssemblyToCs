@@ -10,7 +10,7 @@ public static class Simplifier
     /// <summary>
     /// Applies all simplifications to a method.
     /// </summary>
-    /// <param name="method">What method?</param>
+    /// <param name="method">The method.</param>
     /// <param name="decompiler">The decompiler.</param>
     public static void Simplify(Method method, Decompiler decompiler)
     {
@@ -20,7 +20,7 @@ public static class Simplifier
     /// <summary>
     /// Applies all simplifications to a method.
     /// </summary>
-    /// <param name="method">What method?</param>
+    /// <param name="method">The method.</param>
     /// <param name="decompiler">The decompiler.</param>
     public static void SimplifyControlFlow(Method method, Decompiler decompiler)
     {
@@ -96,5 +96,28 @@ public static class Simplifier
         if (blockCount > 0)
             decompiler.Info($"Removed {blockCount} unreachable blocks and {instructionCount} instructions",
                 "Simplifier");
+    }
+
+    /// <summary>
+    /// Removes all nop instructions from a method.
+    /// </summary>
+    /// <param name="method">The method.</param>
+    public static void RemoveNops(Method method)
+    {
+        for (var i = 0; i < method.Instructions.Count; i++)
+        {
+            var instruction = method.Instructions[i];
+
+            if (instruction.OpCode == MilOpCode.Nop)
+            {
+                method.Instructions.RemoveAt(i);
+                method.FlowGraph!.GetBlockByInstruction(instruction)!.Instructions.Remove(instruction);
+                i--;
+            }
+        }
+
+        // branches are references so that doesn't need to be changed
+        for (var i = 0; i < method.Instructions.Count; i++)
+            method.Instructions[i].Index = i;
     }
 }

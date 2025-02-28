@@ -41,6 +41,11 @@ public class Block
     public bool IsFallThrough => Instructions.Last().IsFallThrough;
 
     /// <summary>
+    /// Is the block call?
+    /// </summary>
+    public bool IsCall => Instructions.Count != 0 && Instructions.Last().OpCode == MilOpCode.Call;
+
+    /// <summary>
     /// Adds instruction to the block.
     /// </summary>
     /// <param name="instruction">What instruction?</param>

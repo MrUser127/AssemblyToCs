@@ -15,96 +15,13 @@ namespace AssemblyToCs.CommandLine;
 
 internal class Program
 {
-    public struct InstructionTarget(int offset)
+    public struct InstructionTarget(int index)
     {
-        public int Offset = offset;
+        public int Index = index;
     }
 
     private static void Main(string[] args)
     {
-        var module = new ModuleDefinition("TheAssembly");
-
-        var importer = module.DefaultImporter;
-        var corLibTypes = module.CorLibTypeFactory;
-
-        var type = new TypeDefinition("TheNamespace", "TheClass", TypeAttributes.Class | TypeAttributes.Public);
-        module.TopLevelTypes.Add(type);
-
-        var signature = new MethodSignature(CallingConventionAttributes.Default, corLibTypes.Int32,
-            new List<TypeSignature>()
-            {
-                corLibTypes.Int32,
-                corLibTypes.Int32
-            });
-        var method = new MethodDefinition("TheMethod", MethodAttributes.Public, signature);
-        method.ParameterDefinitions.Add(new ParameterDefinition(1, "a", 0));
-        method.ParameterDefinitions.Add(new ParameterDefinition(2, "b", 0));
-        type.Methods.Add(method);
-
-        var signature2 = new MethodSignature(CallingConventionAttributes.Default, corLibTypes.Int32,
-            new List<TypeSignature>()
-            {
-                corLibTypes.Int32
-            });
-        var method2 = new MethodDefinition("DoSomething", MethodAttributes.Public, signature2);
-        method2.ParameterDefinitions.Add(new ParameterDefinition(1, "num", 0));
-        type.Methods.Add(method2);
-
-        var parameters = new List<object>()
-        {
-            new MilRegister(0),
-            new MilRegister(1),
-        };
-
-        var mil = new List<MilInstruction>()
-        {
-            new MilInstruction(0x0, MilOpCode.ShiftStack, 0x123),
-            new MilInstruction(0x1, MilOpCode.Move, new MilRegister(2), new MilRegister(0)),
-            new MilInstruction(0x2, MilOpCode.Add, new MilRegister(2), new MilRegister(1)),
-            new MilInstruction(0x3, MilOpCode.Call, method2, new MilRegister(2), new MilRegister(2)),
-            new MilInstruction(0x4, MilOpCode.ShiftStack, 0x28),
-            new MilInstruction(0x5, MilOpCode.Return, new MilRegister(2)),
-            // simplifier should remove these
-            new MilInstruction(0x6, MilOpCode.Add, new MilMemoryLocation(2, 0x123), new MilStackOffset(0x123)),
-            new MilInstruction(0x7, MilOpCode.Xor, new MilRegister(0), new MilRegister(0)),
-            new MilInstruction(0x8, MilOpCode.Add, new MilMemoryLocation(2, 0x123), new MilStackOffset(0x123))
-
-            /*new MilInstruction(0x0, MilOpCode.ShiftStack, -0x28),
-            new MilInstruction(0x1, MilOpCode.CheckNotEqual, new MilRegister(500),
-                new MilMemoryLocation(null, 0x57BBDF0), 0),
-            new MilInstruction(0x2, MilOpCode.ConditionalJump, new InstructionTarget(0x6), new MilRegister(500)),
-            new MilInstruction(0x3, MilOpCode.Move, new MilRegister(0), 0x5477120),
-            new MilInstruction(0x4, MilOpCode.Call, method2, new MilMemoryLocation(null, 0x57BBDF0),
-                new MilMemoryLocation(null, 0x57BBDF0)),
-            new MilInstruction(0x5, MilOpCode.Move, new MilMemoryLocation(null, 0x57BBDF0), 1),
-            new MilInstruction(0x6, MilOpCode.Move, new MilRegister(0), new MilMemoryLocation(null, 0x5477120)),
-            new MilInstruction(0x7, MilOpCode.CheckNotEqual, new MilRegister(500), new MilMemoryLocation(0, 0x0e0), 0),
-            new MilInstruction(0x8, MilOpCode.ConditionalJump, new InstructionTarget(0xb), new MilRegister(500)),
-            new MilInstruction(0x9, MilOpCode.ShiftStack, 0x28),
-            new MilInstruction(0xa, MilOpCode.Call, method2, new MilMemoryLocation(null, 0x57BBDF0),
-                new MilMemoryLocation(null, 0x57BBDF0)),
-            new MilInstruction(0xb, MilOpCode.ShiftStack, 0x28),
-            new MilInstruction(0xc, MilOpCode.Return)*/
-
-            /*new MilInstruction(0x0, MilOpCode.ShiftStack, 0x123),
-            new MilInstruction(0x1, MilOpCode.Move, new MilStackOffset(0x10), 0),
-            new MilInstruction(0x2, MilOpCode.ShiftStack, 0x123),
-            new MilInstruction(0x3, MilOpCode.Return)*/
-        };
-
-        foreach (var instruction in mil)
-        {
-            if ((instruction.OpCode is MilOpCode.Jump or MilOpCode.ConditionalJump) &&
-                instruction.Operands[0] is InstructionTarget)
-            {
-                var target = (InstructionTarget)instruction.Operands[0]!;
-                var targetInstruction = mil.First(i => i.Offset == target.Offset);
-                instruction.Operands[0] = targetInstruction;
-            }
-        }
-
-        var decompilerMethod = new Method(method, mil, parameters);
-
         var decompiler = new Decompiler();
 
         decompiler.PreDecompile = (method3) => Console.WriteLine("    ----- PreDecompile");
@@ -112,27 +29,82 @@ internal class Program
         decompiler.PostBuildCfg = (method3) => Console.WriteLine("    ----- PostBuildCfg");
         decompiler.PostSimplifyCfg = (method3) => Console.WriteLine("    ----- PostSimplifyCfg");
         decompiler.PostBuildDominance = (method3) => Console.WriteLine("    ----- PostBuildDominance");
+        decompiler.PostAnalyzeStack = (method3) => Console.WriteLine("    ----- PostAnalyzeStack");
         decompiler.PostDecompile = (method3) => Console.WriteLine("    ----- PostDecompile");
 
         decompiler.InfoLog = (text, source) => Console.WriteLine($"{source} : {text}");
         decompiler.WarnLog = (text, source) => Console.WriteLine($"{source} [Warn] : {text}");
         decompiler.ErrorLog = (text, source) => Console.WriteLine($"{source} [Error] : {text}");
 
+        var theAssembly = new ModuleDefinition("TheAssembly");
+
+        var importer = theAssembly.DefaultImporter;
+        var corLibTypes = theAssembly.CorLibTypeFactory;
+
+        var theClass = new TypeDefinition("TheNamespace", "TheClass", TypeAttributes.Class | TypeAttributes.Public);
+        theAssembly.TopLevelTypes.Add(theClass);
+
+        var theMethodSignature = new MethodSignature(CallingConventionAttributes.Default, corLibTypes.Int32,
+            new List<TypeSignature>()
+            {
+                corLibTypes.Int32,
+                corLibTypes.Int32
+            });
+        var theMethod = new MethodDefinition("TheMethod", MethodAttributes.Public, theMethodSignature);
+        theMethod.ParameterDefinitions.Add(new ParameterDefinition(1, "a", 0));
+        theMethod.ParameterDefinitions.Add(new ParameterDefinition(2, "b", 0));
+        theClass.Methods.Add(theMethod);
+
+        var doSomethingSignature = new MethodSignature(CallingConventionAttributes.Default, corLibTypes.Int32,
+            new List<TypeSignature>()
+            {
+                corLibTypes.Int32
+            });
+        var doSomething = new MethodDefinition("DoSomething", MethodAttributes.Public, doSomethingSignature);
+        doSomething.ParameterDefinitions.Add(new ParameterDefinition(1, "num", 0));
+        theClass.Methods.Add(doSomething);
+
         var workingDirectory = Path.GetDirectoryName(Environment.ProcessPath!)!;
         var assemblyPath = Path.Combine(workingDirectory, "TempAssembly.dll");
-        module.Write(assemblyPath);
+        theAssembly.Write(assemblyPath);
 
-        Console.WriteLine($"Method: {method}");
+        var paramLocations = new List<object>()
+        {
+            new MilRegister(0),
+            new MilRegister(1),
+        };
+
+        MilRegister Reg(int i) => new MilRegister(i);
+        var b = new MilBuilder();
+
+        b.Move(0, Reg(2), Reg(0));
+        b.Add(0, Reg(2), Reg(1));
+        b.Push(0, Reg(2), 8);
+        b.Pop(0, Reg(3), 8);
+        b.Call(0, doSomething, Reg(3), Reg(3));
+        b.Push(0, Reg(3), 8);
+        b.Pop(0, Reg(5), 8);
+        b.Move(0, Reg(4), Reg(5));
+        b.Return(0, Reg(4));
+
+        b.FixBranches();
+        b.FixIndexes();
+
+        var instructions = b.Instructions;
+        var decompilerMethod = new Method(theMethod, instructions, paramLocations, 8);
+
+        Console.WriteLine($"Method: {theMethod}");
 
         Console.WriteLine("MIL:");
-        Console.WriteLine(string.Join(Environment.NewLine, mil.Select(i => "    " + i)));
+        Console.WriteLine(string.Join(Environment.NewLine, instructions.Select(i => "    " + i)));
         Console.WriteLine();
 
         var code = decompiler.DecompileAsString(decompilerMethod, workingDirectory);
-        Console.WriteLine();
-        var decompiledAssemblyPath = Path.Combine(workingDirectory, "TempAssembly_decompiled.dll");
-        module.Write(decompiledAssemblyPath);
 
+        var decompiledAssemblyPath = Path.Combine(workingDirectory, "TempAssembly_decompiled.dll");
+        theAssembly.Write(decompiledAssemblyPath);
+
+        Console.WriteLine();
         Console.WriteLine("MIL:");
         Console.WriteLine(string.Join(Environment.NewLine, decompilerMethod.Instructions.Select(i => "    " + i)));
 

@@ -28,7 +28,7 @@ public readonly struct MilRegister(int number) : IEquatable<MilRegister>
     {
         if (obj is not MilRegister register)
             return false;
-        return Number == register.Number;
+        return Equals(register);
     }
 
     public bool Equals(MilRegister other)

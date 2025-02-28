@@ -1,7 +1,7 @@
 ﻿namespace AssemblyToCs;
 
 /// <summary>
-/// Represents dominance information for a method. (this is taken and edited from github.com/SamboyCoding/Cpp2IL/blob/development-gompo-ast/Cpp2IL.Core/Graphs/DominatorInfo.cs)
+/// Represents dominance information for a method. (this is taken and edited from https://github.com/SamboyCoding/Cpp2IL/blob/development-gompo-ast/Cpp2IL.Core/Graphs/DominatorInfo.cs)
 /// </summary>
 public class Dominance
 {

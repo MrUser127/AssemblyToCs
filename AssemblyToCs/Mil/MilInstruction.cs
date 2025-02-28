@@ -5,12 +5,12 @@ namespace AssemblyToCs.Mil;
 /// <summary>
 /// Medium level IL instruction.
 /// </summary>
-public class MilInstruction(uint offset, MilOpCode opCode, params object?[] operands)
+public class MilInstruction(int index, MilOpCode opCode, params object?[] operands)
 {
     /// <summary>
-    /// Instruction offset.
+    /// Instruction index.
     /// </summary>
-    public uint Offset = offset;
+    public int Index = index;
 
     /// <summary>
     /// The opcode.
@@ -20,7 +20,7 @@ public class MilInstruction(uint offset, MilOpCode opCode, params object?[] oper
     /// <summary>
     /// Operands.
     /// </summary>
-    public object?[] Operands = operands;
+    public List<object?> Operands = operands.ToList();
 
     /// <summary>
     /// Is this instruction the start of a block?
@@ -30,10 +30,27 @@ public class MilInstruction(uint offset, MilOpCode opCode, params object?[] oper
     /// <summary>
     /// Is the instruction fall through?
     /// </summary>
-    public bool IsFallThrough =>
-        OpCode != MilOpCode.Jump && OpCode != MilOpCode.ConditionalJump && OpCode != MilOpCode.Return;
+    public bool IsFallThrough
+    {
+        get
+        {
+            switch (OpCode)
+            {
+                case MilOpCode.Return:
+                case MilOpCode.Jump:
+                case MilOpCode.JumpTrue:
+                case MilOpCode.JumpFalse:
+                case MilOpCode.JumpEqual:
+                case MilOpCode.JumpGreater:
+                case MilOpCode.JumpLess:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+    }
 
-    public override string ToString() => $"{Offset:X2} {OpCode} {string.Join(", ", Operands.Select(FormatOperand))}";
+    public override string ToString() => $"{Index} {OpCode} {string.Join(", ", Operands.Select(FormatOperand))}";
 
     private static string FormatOperand(object? operand)
     {
@@ -42,7 +59,7 @@ public class MilInstruction(uint offset, MilOpCode opCode, params object?[] oper
             int num => num < 0 ? $"-{-num:X2}" : $"{num:X2}",
             string text => $"\"{text}\"",
             MethodDefinition method => method.Name!,
-            MilInstruction instruction => $"@{instruction.Offset:X2}",
+            MilInstruction instruction => $"@{instruction.Index}",
             null => "null",
             _ => operand.ToString()!
         };

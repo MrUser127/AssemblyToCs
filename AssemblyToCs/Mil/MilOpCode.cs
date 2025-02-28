@@ -5,113 +5,30 @@
 /// </summary>
 public enum MilOpCode
 {
-    /// <summary>
-    /// Unknown [optional text]
-    /// </summary>
     Unknown,
-
-    /// <summary>
-    /// Move [dest], [src]
-    /// </summary>
+    Nop,
     Move,
-
-    /// <summary>
-    /// Return [optional src]
-    /// </summary>
-    Return,
-
-    /// <summary>
-    /// Add [dest], [src]
-    /// </summary>
-    Add,
-
-    /// <summary>
-    /// Subtract [dest], [src]
-    /// </summary>
-    Subtract,
-
-    /// <summary>
-    /// Multiply [dest], [src]
-    /// </summary>
-    Multiply,
-
-    /// <summary>
-    /// Divide [dest], [src]
-    /// </summary>
-    Divide,
-
-    /// <summary>
-    /// Xor [dest], [src]
-    /// </summary>
-    Xor,
-
-    /// <summary>
-    /// Push [src]
-    /// </summary>
-    Push,
-
-    /// <summary>
-    /// Pop [dest]
-    /// </summary>
-    Pop,
-
-    /// <summary>
-    /// ShiftStack [offset]
-    /// </summary>
     ShiftStack,
-
-    /// <summary>
-    /// Call [method], [return (can be null)], [arg1], [arg2]...
-    /// </summary>
     Call,
-
-    /// <summary>
-    /// Jump [instruction]
-    /// </summary>
+    Return,
     Jump,
-
-    /// <summary>
-    /// ConditionalJump [instruction], [condition]
-    /// </summary>
-    ConditionalJump,
-
-    /// <summary>
-    /// CheckEqual [result], [left], [right]
-    /// </summary>
+    JumpTrue,
+    JumpFalse,
+    JumpEqual,
+    JumpGreater,
+    JumpLess,
     CheckEqual,
-
-    /// <summary>
-    /// CheckNotEqual [result], [left], [right]
-    /// </summary>
-    CheckNotEqual,
-
-    /// <summary>
-    /// CheckGreater [result], [left], [right]
-    /// </summary>
     CheckGreater,
-
-    /// <summary>
-    /// CheckGreaterOrEqual [result], [left], [right]
-    /// </summary>
-    CheckGreaterOrEqual,
-
-    /// <summary>
-    /// CheckLess [result], [left], [right]
-    /// </summary>
     CheckLess,
-
-    /// <summary>
-    /// CheckLessOrEqual [result], [left], [right]
-    /// </summary>
-    CheckLessOrEqual,
-
-    /// <summary>
-    /// CheckSign [result], [src]
-    /// </summary>
-    CheckSign,
-
-    /// <summary>
-    /// CheckNotSign [result], [src]
-    /// </summary>
-    CheckNotSign
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    And,
+    Or,
+    Xor,
+    Not,
+    Negate,
+    ShiftRight,
+    ShiftLeft
 }

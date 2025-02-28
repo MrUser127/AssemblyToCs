@@ -48,6 +48,11 @@ public class Decompiler
     public Action<Method> PostBuildDominance = (_) => { };
 
     /// <summary>
+    /// Invoked after analyzing the stack.
+    /// </summary>
+    public Action<Method> PostAnalyzeStack = (_) => { };
+
+    /// <summary>
     /// Invoked after decompilation.
     /// </summary>
     public Action<Method> PostDecompile = (_) => { };
@@ -71,27 +76,27 @@ public class Decompiler
     /// Logs info message.
     /// </summary>
     /// <param name="text">Text.</param>
-    /// <param name="source">Where did this log come from?</param>
+    /// <param name="source">Message source.</param>
     public void Info(string text, string source = "Decompiler") => InfoLog(text, source);
 
     /// <summary>
     /// Logs warning message.
     /// </summary>
     /// <param name="text">Text.</param>
-    /// <param name="source">Where did this log come from?</param>
+    /// <param name="source">Message source.</param>
     public void Warn(string text, string source = "Decompiler") => WarnLog(text, source);
 
     /// <summary>
     /// Logs error message.
     /// </summary>
     /// <param name="text">Text.</param>
-    /// <param name="source">Where did this log come from?</param>
+    /// <param name="source">Message source.</param>
     public void Error(string text, string source = "Decompiler") => ErrorLog(text, source);
 
     /// <summary>
     /// Decompiles a method to .NET's IL. There is no return value, this sets the body.
     /// </summary>
-    /// <param name="method">What method?</param>
+    /// <param name="method">The method.</param>
     public void Decompile(Method method)
     {
         var definition = method.Definition;
@@ -120,6 +125,10 @@ public class Decompiler
             method.Dominance = dominance;
             PostBuildDominance(method);
 
+            Info("Analyzing stack...");
+            StackAnalyzer.Analyze(method, this);
+            PostAnalyzeStack(method);
+
             PostDecompile(method);
 
             ReplaceBodyWithException(definition, "Decompilation not implemented");
@@ -133,10 +142,10 @@ public class Decompiler
     }
 
     /// <summary>
-    /// Decompiles a method as string. This writes a copy of original assembly with 1 method decompiled to assemblyDirectory and then deletes it.
+    /// Decompiles a method as string. This writes a copy of original assembly with 1 method decompiled to <paramref name="assemblyDirectory"/> and then deletes it.
     /// </summary>
-    /// <param name="method">What method?</param>
-    /// <param name="assemblyDirectory">Where are deps for this assembly?</param>
+    /// <param name="method">The method.</param>
+    /// <param name="assemblyDirectory">The directory that has deps for the method.</param>
     /// <returns>The method as string.</returns>
     public string DecompileAsString(Method method, string assemblyDirectory)
     {
