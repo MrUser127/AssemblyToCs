@@ -23,41 +23,6 @@ public class Decompiler
     };
 
     /// <summary>
-    /// Invoked before starting decompilation.
-    /// </summary>
-    public Action<Method> PreDecompile = (_) => { };
-
-    /// <summary>
-    /// Invoked after simplifying.
-    /// </summary>
-    public Action<Method> PostSimplify = (_) => { };
-
-    /// <summary>
-    /// Invoked after building the control flow graph.
-    /// </summary>
-    public Action<Method> PostBuildCfg = (_) => { };
-
-    /// <summary>
-    /// Invoked after simplifying the control flow graph.
-    /// </summary>
-    public Action<Method> PostSimplifyCfg = (_) => { };
-
-    /// <summary>
-    /// Invoked after building dominance info.
-    /// </summary>
-    public Action<Method> PostBuildDominance = (_) => { };
-
-    /// <summary>
-    /// Invoked after analyzing the stack.
-    /// </summary>
-    public Action<Method> PostAnalyzeStack = (_) => { };
-
-    /// <summary>
-    /// Invoked after decompilation.
-    /// </summary>
-    public Action<Method> PostDecompile = (_) => { };
-
-    /// <summary>
     /// Info log event.
     /// </summary>
     public Action<string, string> InfoLog = (_, _) => { };
@@ -104,32 +69,27 @@ public class Decompiler
 
         try
         {
-            PreDecompile(method);
-
             Info("Simplifying...");
             Simplifier.Simplify(method, this);
-            PostSimplify(method);
 
             Info("Building CFG...");
-            var cfg = new ControlFlowGraph();
-            cfg.Build(method, this);
+            var cfg = ControlFlowGraph.Build(method, this);
             method.FlowGraph = cfg;
-            PostBuildCfg(method);
 
             Info("Simplifying control flow...");
             Simplifier.SimplifyControlFlow(method, this);
-            PostSimplifyCfg(method);
+
+            Info("Analyzing stack...");
+            StackAnalyzer.Analyze(method, this);
+
+            // at this point the concept of a stack doesn't exist
+
+            Info("Joining CFG call blocks...");
+            cfg.MergeCallBlocks();
 
             Info("Building dominance info...");
             var dominance = Dominance.Build(method);
             method.Dominance = dominance;
-            PostBuildDominance(method);
-
-            Info("Analyzing stack...");
-            StackAnalyzer.Analyze(method, this);
-            PostAnalyzeStack(method);
-
-            PostDecompile(method);
 
             ReplaceBodyWithException(definition, "Decompilation not implemented");
             Info("Done!");
@@ -154,9 +114,11 @@ public class Decompiler
 
         Info("Decompiling IL to C#...");
 
+        // write it so that ilspy can resolve deps
         var assemblyPath = Path.Combine(assemblyDirectory, definition.Module!.Name + "_tmp.dll");
         definition.Module!.Write(assemblyPath);
 
+        // decompile IL -> C#
         var decompiler = new CSharpDecompiler(assemblyPath, Settings);
         var name = new FullTypeName(definition.DeclaringType!.FullName);
         var typeInfo = decompiler.TypeSystem.FindType(name).GetDefinition()!;
@@ -172,13 +134,16 @@ public class Decompiler
     {
         var importer = method.Module!.DefaultImporter;
 
+        // get mscorlib
         var mscorlibReference = method.Module.AssemblyReferences.First(a => a.Name == "mscorlib");
         var mscorlib = mscorlibReference.Resolve()!.Modules[0];
 
-        var exceptionType = mscorlib.TopLevelTypes.First(t => t.FullName == "System.Exception");
-        var exceptionConstructor = exceptionType.Methods.First(m =>
+        // get exception constructor
+        var exception = mscorlib.TopLevelTypes.First(t => t.FullName == "System.Exception");
+        var exceptionConstructor = exception.Methods.First(m =>
             m.Name == ".ctor" && m.Parameters is [{ ParameterType.FullName: "System.String" }]);
 
+        // add instructions
         method.CilMethodBody = new CilMethodBody(method);
         var instructions = method.CilMethodBody.Instructions;
 

@@ -28,7 +28,7 @@ public class ControlFlowGraph
     /// <summary>
     /// Creates a new control flow graph.
     /// </summary>
-    public ControlFlowGraph()
+    private ControlFlowGraph()
     {
         EntryBlock = new Block() { Id = _nextId++ };
         ExitBlock = new Block() { Id = _nextId++ };
@@ -57,14 +57,16 @@ public class ControlFlowGraph
     /// </summary>
     /// <param name="method">The method.</param>
     /// <param name="decompiler">The decompiler.</param>
-    public void Build(Method method, Decompiler decompiler)
+    public static ControlFlowGraph Build(Method method, Decompiler decompiler)
     {
+        var cfg = new ControlFlowGraph();
+
         var instructions = method.Instructions;
 
-        var currentBlock = new Block() { Id = _nextId++ };
+        var currentBlock = new Block() { Id = cfg._nextId++ };
 
-        Blocks.Add(currentBlock);
-        AddDirectedEdge(EntryBlock, currentBlock);
+        cfg.Blocks.Add(currentBlock);
+        AddDirectedEdge(cfg.EntryBlock, currentBlock);
 
         for (var i = 0; i < instructions.Count; i++)
         {
@@ -76,17 +78,17 @@ public class ControlFlowGraph
                     currentBlock.AddInstruction(instructions[i]);
                     if (!isLast)
                     {
-                        var jumpBlock = new Block() { Id = _nextId++ };
-                        Blocks.Add(jumpBlock);
+                        var jumpBlock = new Block() { Id = cfg._nextId++ };
+                        cfg.Blocks.Add(jumpBlock);
                         if (TryGetBranchTargetOffset(instructions[i], out var jumpTargetIndex))
                             currentBlock.IsDirty = true;
                         else
-                            AddDirectedEdge(currentBlock, ExitBlock);
+                            AddDirectedEdge(currentBlock, cfg.ExitBlock);
                         currentBlock = jumpBlock;
                     }
                     else
                     {
-                        AddDirectedEdge(currentBlock, ExitBlock);
+                        AddDirectedEdge(currentBlock, cfg.ExitBlock);
                         currentBlock.IsDirty = true;
                     }
 
@@ -99,15 +101,15 @@ public class ControlFlowGraph
                     currentBlock.AddInstruction(instructions[i]);
                     if (!isLast)
                     {
-                        var condJumpBlock = new Block() { Id = _nextId++ };
-                        Blocks.Add(condJumpBlock);
+                        var condJumpBlock = new Block() { Id = cfg._nextId++ };
+                        cfg.Blocks.Add(condJumpBlock);
                         AddDirectedEdge(currentBlock, condJumpBlock);
                         currentBlock.IsDirty = true;
                         currentBlock = condJumpBlock;
                     }
                     else
                     {
-                        AddDirectedEdge(currentBlock, ExitBlock);
+                        AddDirectedEdge(currentBlock, cfg.ExitBlock);
                     }
 
                     break;
@@ -115,14 +117,14 @@ public class ControlFlowGraph
                     currentBlock.AddInstruction(instructions[i]);
                     if (!isLast)
                     {
-                        var returnBlock = new Block() { Id = _nextId++ };
-                        Blocks.Add(returnBlock);
-                        AddDirectedEdge(currentBlock, ExitBlock);
+                        var returnBlock = new Block() { Id = cfg._nextId++ };
+                        cfg.Blocks.Add(returnBlock);
+                        AddDirectedEdge(currentBlock, cfg.ExitBlock);
                         currentBlock = returnBlock;
                     }
                     else
                     {
-                        AddDirectedEdge(currentBlock, ExitBlock);
+                        AddDirectedEdge(currentBlock, cfg.ExitBlock);
                     }
 
                     break;
@@ -130,14 +132,14 @@ public class ControlFlowGraph
                     currentBlock.AddInstruction(instructions[i]);
                     if (!isLast)
                     {
-                        var callBlock = new Block() { Id = _nextId++ };
-                        Blocks.Add(callBlock);
+                        var callBlock = new Block() { Id = cfg._nextId++ };
+                        cfg.Blocks.Add(callBlock);
                         AddDirectedEdge(currentBlock, callBlock);
                         currentBlock = callBlock;
                     }
                     else
                     {
-                        AddDirectedEdge(currentBlock, ExitBlock);
+                        AddDirectedEdge(currentBlock, cfg.ExitBlock);
                     }
 
                     break;
@@ -149,12 +151,48 @@ public class ControlFlowGraph
             }
         }
 
-        for (var i = 0; i < Blocks.Count; i++)
+        for (var i = 0; i < cfg.Blocks.Count; i++)
         {
-            var block = Blocks[i];
+            var block = cfg.Blocks[i];
 
             if (block.IsDirty)
-                FixBlock(block, decompiler);
+                cfg.FixBlock(block, decompiler);
+        }
+
+        return cfg;
+    }
+
+    /// <summary>
+    /// Initially blocks are split by calls, this merges those blocks.
+    /// </summary>
+    public void MergeCallBlocks()
+    {
+        for (var i = 0; i < Blocks.Count - 1; i++)
+        {
+            var block = Blocks[i];
+            if (!block.IsCall) continue;
+            var nextBlock = block.Successors[0];
+
+            // make sure that the next block only has one predecessor (this)
+            if (nextBlock.Predecessors.Count != 1 || nextBlock.Predecessors[0] != block) continue;
+
+            // merge blocks
+            block.Instructions.AddRange(nextBlock.Instructions);
+            block.Successors = nextBlock.Successors;
+
+            // update the predecessors of the new successors
+            foreach (var successor in nextBlock.Successors)
+            {
+                for (var j = 0; j < successor.Predecessors.Count; j++)
+                {
+                    if (successor.Predecessors[j] == nextBlock)
+                        successor.Predecessors[j] = block;
+                }
+            }
+
+            // remove the merged block
+            Blocks.RemoveAt(i + 1);
+            i--;
         }
     }
 
@@ -202,35 +240,42 @@ public class ControlFlowGraph
         if (index < 0 || index >= target.Instructions.Count)
             throw new ArgumentOutOfRangeException(nameof(index));
 
+        // Don't need to split
         if (index == 0)
             return target;
 
-        var newNode = new Block() { Id = _nextId++ };
+        // split it
+        var newBlock = new Block() { Id = _nextId++ };
 
+        // take the instructions for the second part
         var instructions = target.Instructions.GetRange(index, target.Instructions.Count - index);
         target.Instructions.RemoveRange(index, target.Instructions.Count - index);
 
-        newNode.Instructions.AddRange(instructions);
+        // add those to the newNode
+        newBlock.Instructions.AddRange(instructions);
 
-        newNode.Successors = target.Successors;
+        // transfer successors
+        newBlock.Successors = target.Successors;
         if (target.IsDirty)
-            newNode.IsDirty = true;
+            newBlock.IsDirty = true;
         target.IsDirty = false;
         target.Successors = [];
 
-        foreach (var successor in newNode.Successors)
+        // correct the predecessors for all the successors
+        foreach (var successor in newBlock.Successors)
         {
             for (var i = 0; i < successor.Predecessors.Count; i++)
             {
                 if (successor.Predecessors[i].Id == target.Id)
-                    successor.Predecessors[i] = newNode;
+                    successor.Predecessors[i] = newBlock;
             }
         }
 
-        Blocks.Add(newNode);
-        AddDirectedEdge(target, newNode);
+        // add new block and connect it
+        Blocks.Add(newBlock);
+        AddDirectedEdge(target, newBlock);
 
-        return newNode;
+        return newBlock;
     }
 
     private static void AddDirectedEdge(Block from, Block to)

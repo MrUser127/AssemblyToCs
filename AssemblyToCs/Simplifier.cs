@@ -33,9 +33,10 @@ public static class Simplifier
 
         foreach (var instruction in method.Instructions)
         {
-            // xor reg, reg -> move reg, 0
+            // xor reg, reg
             if (instruction.OpCode == MilOpCode.Xor && instruction.Operands[0]!.Equals(instruction.Operands[1]))
             {
+                // replace with move reg, 0
                 instruction.OpCode = MilOpCode.Move;
                 instruction.Operands[1] = 0;
                 count++;
@@ -53,6 +54,7 @@ public static class Simplifier
         if (cfg.Blocks.Count == 0)
             return;
 
+        // get blocks reachable from entry
         var reachable = new List<Block>();
         var visited = new List<Block>();
         visited.Add(cfg.EntryBlock);
@@ -73,12 +75,15 @@ public static class Simplifier
             }
         }
 
+        // get unreachable blocks
         var unreachable = cfg.Blocks.Where(block => !visited.Remove(block)).ToList();
         var instructionCount = 0;
         var blockCount = 0;
 
+        // remove those
         foreach (var block in unreachable)
         {
+            // dont remove entry or exit
             if (block == cfg.EntryBlock || block == cfg.ExitBlock)
                 continue;
 
@@ -110,13 +115,14 @@ public static class Simplifier
 
             if (instruction.OpCode == MilOpCode.Nop)
             {
+                // remove from instructions and CFG
                 method.Instructions.RemoveAt(i);
                 method.FlowGraph!.GetBlockByInstruction(instruction)!.Instructions.Remove(instruction);
                 i--;
             }
         }
 
-        // branches are references so that doesn't need to be changed
+        // branches are references instead of indexes so this should be fine
         for (var i = 0; i < method.Instructions.Count; i++)
             method.Instructions[i].Index = i;
     }

@@ -24,14 +24,6 @@ internal class Program
     {
         var decompiler = new Decompiler();
 
-        decompiler.PreDecompile = (method3) => Console.WriteLine("    ----- PreDecompile");
-        decompiler.PostSimplify = (method3) => Console.WriteLine("    ----- PostSimplify");
-        decompiler.PostBuildCfg = (method3) => Console.WriteLine("    ----- PostBuildCfg");
-        decompiler.PostSimplifyCfg = (method3) => Console.WriteLine("    ----- PostSimplifyCfg");
-        decompiler.PostBuildDominance = (method3) => Console.WriteLine("    ----- PostBuildDominance");
-        decompiler.PostAnalyzeStack = (method3) => Console.WriteLine("    ----- PostAnalyzeStack");
-        decompiler.PostDecompile = (method3) => Console.WriteLine("    ----- PostDecompile");
-
         decompiler.InfoLog = (text, source) => Console.WriteLine($"{source} : {text}");
         decompiler.WarnLog = (text, source) => Console.WriteLine($"{source} [Warn] : {text}");
         decompiler.ErrorLog = (text, source) => Console.WriteLine($"{source} [Error] : {text}");

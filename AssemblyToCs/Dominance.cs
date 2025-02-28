@@ -89,9 +89,10 @@ public class Dominance
     {
         Dominators.Clear();
 
+        // entry block dominates itself, all others are initialized with all blocks
         foreach (var block in cfg.Blocks)
         {
-            if (block.Predecessors.Count == 0)
+            if (block == cfg.EntryBlock)
                 Dominators[block] = [block];
             else
                 Dominators[block] = new HashSet<Block>(cfg.Blocks);
@@ -99,16 +100,17 @@ public class Dominance
 
         var changed = true;
 
+        // get dominators
         while (changed)
         {
             changed = false;
 
             foreach (var block in cfg.Blocks)
             {
-                if (block.Predecessors.Count == 0)
+                if (block == cfg.EntryBlock)
                     continue;
 
-                var tempDoms = block.Predecessors.Count == 0
+                var tempDoms = block == cfg.EntryBlock
                     ? new HashSet<Block>()
                     : new HashSet<Block>(Dominators[block.Predecessors[0]]);
 
