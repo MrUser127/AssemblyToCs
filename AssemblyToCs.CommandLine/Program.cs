@@ -85,11 +85,17 @@ internal class Program
                 new MilMemoryLocation(null, 0x57BBDF0)),
             new MilInstruction(0xb, MilOpCode.ShiftStack, 0x28),
             new MilInstruction(0xc, MilOpCode.Return)*/
+
+            /*new MilInstruction(0x0, MilOpCode.ShiftStack, 0x123),
+            new MilInstruction(0x1, MilOpCode.Move, new MilStackOffset(0x10), 0),
+            new MilInstruction(0x2, MilOpCode.ShiftStack, 0x123),
+            new MilInstruction(0x3, MilOpCode.Return)*/
         };
 
         foreach (var instruction in mil)
         {
-            if (instruction.OpCode is MilOpCode.Jump or MilOpCode.ConditionalJump)
+            if ((instruction.OpCode is MilOpCode.Jump or MilOpCode.ConditionalJump) &&
+                instruction.Operands[0] is InstructionTarget)
             {
                 var target = (InstructionTarget)instruction.Operands[0]!;
                 var targetInstruction = mil.First(i => i.Offset == target.Offset);
@@ -104,6 +110,7 @@ internal class Program
         decompiler.PreDecompile = (method3) => Console.WriteLine("    ----- PreDecompile");
         decompiler.PostSimplify = (method3) => Console.WriteLine("    ----- PostSimplify");
         decompiler.PostBuildCfg = (method3) => Console.WriteLine("    ----- PostBuildCfg");
+        decompiler.PostSimplifyCfg = (method3) => Console.WriteLine("    ----- PostSimplifyCfg");
         decompiler.PostBuildDominance = (method3) => Console.WriteLine("    ----- PostBuildDominance");
         decompiler.PostDecompile = (method3) => Console.WriteLine("    ----- PostDecompile");
 
@@ -137,7 +144,7 @@ internal class Program
 
     private static string BuildGraph(Method method)
     {
-        var graph = method.FlowGraph!;
+        var cfg = method.FlowGraph!;
 
         var directedGraph = new DotGraph()
             .WithIdentifier("ControlFlowGraph")
@@ -147,21 +154,24 @@ internal class Program
         var nodes = new Dictionary<int, DotNode>();
         var edges = new List<DotEdge>();
 
-        foreach (var block in graph.Blocks)
+        foreach (var block in cfg.Blocks)
         {
             var node = GetOrAddNode(block.Id);
 
-            if (block == graph.EntryBlock)
-                node.WithColor("green");
-
-            node.WithShape("box");
-
-            if (block.Instructions.Count == 0)
+            if (block == cfg.EntryBlock)
             {
-                node.WithLabel("Entry");
+                node.WithLabel($"Entry ({block.Id})");
+                node.WithColor("green");
+            }
+            else if (block == cfg.ExitBlock)
+            {
+                node.WithLabel($"Exit ({block.Id})");
+                node.WithColor("red");
             }
             else
             {
+                node.WithShape("box");
+
                 var sb = new StringBuilder();
                 sb.AppendLine("Block " + block.Id);
                 if (method.Dominance!.DominanceTree.TryGetValue(block, out var doms))

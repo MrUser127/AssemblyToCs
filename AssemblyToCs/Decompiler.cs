@@ -28,14 +28,19 @@ public class Decompiler
     public Action<Method> PreDecompile = (_) => { };
 
     /// <summary>
+    /// Invoked after simplifying.
+    /// </summary>
+    public Action<Method> PostSimplify = (_) => { };
+
+    /// <summary>
     /// Invoked after building the control flow graph.
     /// </summary>
     public Action<Method> PostBuildCfg = (_) => { };
 
     /// <summary>
-    /// Invoked after simplifying.
+    /// Invoked after simplifying the control flow graph.
     /// </summary>
-    public Action<Method> PostSimplify = (_) => { };
+    public Action<Method> PostSimplifyCfg = (_) => { };
 
     /// <summary>
     /// Invoked after building dominance info.
@@ -96,14 +101,19 @@ public class Decompiler
         {
             PreDecompile(method);
 
-            Info("Building CFG...");
-            var cfg = ControlFlowGraph.Build(method);
-            method.FlowGraph = cfg;
-            PostBuildCfg(method);
-
             Info("Simplifying...");
             Simplifier.Simplify(method, this);
             PostSimplify(method);
+
+            Info("Building CFG...");
+            var cfg = new ControlFlowGraph();
+            cfg.Build(method, this);
+            method.FlowGraph = cfg;
+            PostBuildCfg(method);
+
+            Info("Simplifying control flow...");
+            Simplifier.SimplifyControlFlow(method, this);
+            PostSimplifyCfg(method);
 
             Info("Building dominance info...");
             var dominance = Dominance.Build(method);

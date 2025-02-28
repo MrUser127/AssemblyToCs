@@ -16,6 +16,11 @@ public class Block
     public int Id = -1;
 
     /// <summary>
+    /// Is the block dirty?
+    /// </summary>
+    public bool IsDirty = false;
+
+    /// <summary>
     /// Instructions that make up the block.
     /// </summary>
     public List<MilInstruction> Instructions = [];
@@ -29,6 +34,11 @@ public class Block
     /// Blocks that this block can flow into.
     /// </summary>
     public List<Block> Successors = [];
+
+    /// <summary>
+    /// Is the block fall through?
+    /// </summary>
+    public bool IsFallThrough => Instructions.Last().IsFallThrough;
 
     /// <summary>
     /// Adds instruction to the block.

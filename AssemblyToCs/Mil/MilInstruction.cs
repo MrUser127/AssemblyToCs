@@ -27,6 +27,12 @@ public class MilInstruction(uint offset, MilOpCode opCode, params object?[] oper
     /// </summary>
     public bool IsBlockStart = false;
 
+    /// <summary>
+    /// Is the instruction fall through?
+    /// </summary>
+    public bool IsFallThrough =>
+        OpCode != MilOpCode.Jump && OpCode != MilOpCode.ConditionalJump && OpCode != MilOpCode.Return;
+
     public override string ToString() => $"{Offset:X2} {OpCode} {string.Join(", ", Operands.Select(FormatOperand))}";
 
     private static string FormatOperand(object? operand)

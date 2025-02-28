@@ -15,6 +15,15 @@ public static class Simplifier
     public static void Simplify(Method method, Decompiler decompiler)
     {
         ReplaceXorWithMove(method, decompiler);
+    }
+
+    /// <summary>
+    /// Applies all simplifications to a method.
+    /// </summary>
+    /// <param name="method">What method?</param>
+    /// <param name="decompiler">The decompiler.</param>
+    public static void SimplifyControlFlow(Method method, Decompiler decompiler)
+    {
         RemoveUnreachableBlocks(method, decompiler);
     }
 
@@ -65,21 +74,27 @@ public static class Simplifier
         }
 
         var unreachable = cfg.Blocks.Where(block => !visited.Remove(block)).ToList();
-        var count = 0;
+        var instructionCount = 0;
+        var blockCount = 0;
 
         foreach (var block in unreachable)
         {
+            if (block == cfg.EntryBlock || block == cfg.ExitBlock)
+                continue;
+
             foreach (var instruction in block.Instructions)
             {
                 method.Instructions.Remove(instruction);
-                count++;
+                instructionCount++;
             }
 
             block.Successors.Clear();
             cfg.Blocks.Remove(block);
+            blockCount++;
         }
 
-        if (unreachable.Count > 0)
-            decompiler.Info($"Removed {unreachable.Count} unreachable blocks and {count} instructions", "Simplifier");
+        if (blockCount > 0)
+            decompiler.Info($"Removed {blockCount} unreachable blocks and {instructionCount} instructions",
+                "Simplifier");
     }
 }
