@@ -31,8 +31,9 @@ public class Decompiler
         new BuildCfg(),
         new RemoveUnreachableBlocks(),
         new AnalyzeStack(),
-        new RemoveNops(),
-        new MergeCallBlocks(),
+        new RemoveNops(), // stack analysis replaces shiftstack instructions with nops so this needs to be here
+        new MergeCallBlocks(), // initially blocks are split by calls for stack analysis
+        new RemoveRedundantAssignments(),
         new BuildDominance()
     };
 
