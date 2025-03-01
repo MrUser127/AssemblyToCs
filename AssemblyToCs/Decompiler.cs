@@ -4,7 +4,7 @@ using AsmResolver.PE.DotNet.Cil;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.TypeSystem;
-using AssemblyToCs.Mil;
+using AssemblyToCs.Transforms;
 
 namespace AssemblyToCs;
 
@@ -20,6 +20,20 @@ public class Decompiler
     {
         AggressiveInlining = true,
         AlwaysUseBraces = false
+    };
+
+    /// <summary>
+    /// Transforms applied to methods.
+    /// </summary>
+    public List<ITransform> Transforms = new List<ITransform>()
+    {
+        new XorToMove(),
+        new BuildCfg(),
+        new RemoveUnreachableBlocks(),
+        new AnalyzeStack(),
+        new RemoveNops(),
+        new MergeCallBlocks(),
+        new BuildDominance()
     };
 
     /// <summary>
@@ -69,27 +83,9 @@ public class Decompiler
 
         try
         {
-            Info("Simplifying...");
-            Simplifier.Simplify(method, this);
-
-            Info("Building CFG...");
-            var cfg = ControlFlowGraph.Build(method, this);
-            method.FlowGraph = cfg;
-
-            Info("Simplifying control flow...");
-            Simplifier.SimplifyControlFlow(method, this);
-
-            Info("Analyzing stack...");
-            StackAnalyzer.Analyze(method, this);
-
-            // at this point the concept of a stack doesn't exist
-
-            Info("Joining CFG call blocks...");
-            cfg.MergeCallBlocks();
-
-            Info("Building dominance info...");
-            var dominance = Dominance.Build(method);
-            method.Dominance = dominance;
+            Info("Applying transforms...");
+            foreach (var transform in Transforms)
+                transform.Apply(method, this);
 
             ReplaceBodyWithException(definition, "Decompilation not implemented");
             Info("Done!");

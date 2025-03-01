@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
 using AssemblyToCs.Mil;
 
-namespace AssemblyToCs;
+namespace AssemblyToCs.Transforms;
 
 /// <summary>
-/// Converts stack offsets to constants for easier analysis. (this is taken and edited from https://github.com/SamboyCoding/Cpp2IL/blob/development-gompo-ast/Cpp2IL.Core/Graphs/Analysis/Stack/StackAnalyzer.cs)
+/// Converts stack offsets to registers. (this is taken and edited from https://github.com/SamboyCoding/Cpp2IL/blob/development-gompo-ast/Cpp2IL.Core/Graphs/Analysis/Stack/StackAnalyzer.cs)
 /// </summary>
-public class StackAnalyzer
+public class AnalyzeStack : ITransform
 {
     [DebuggerDisplay("Size = {Size}")]
     private class StackEntry
@@ -33,19 +33,21 @@ public class StackAnalyzer
     private Dictionary<Block, StackEntry> _outGoingDelta = [];
     private Dictionary<MilInstruction, StackEntry> _instructionsStackState = [];
 
-    private StackAnalyzer()
+    public void Apply(Method method, Decompiler decompiler)
     {
-    }
+        decompiler.Info("Analyzing stack...", "Stack Analyzer");
 
-    public static void Analyze(Method method, Decompiler decompiler)
-    {
         var graph = method.FlowGraph!;
 
-        var analyzer = new StackAnalyzer();
-        analyzer._inComingDelta[graph.EntryBlock] = new StackEntry();
+        _visited = [];
+        _inComingDelta = [];
+        _outGoingDelta = [];
+        _instructionsStackState = [];
+
+        _inComingDelta[graph.EntryBlock] = new StackEntry();
         var archSize = method.ArchSize;
-        analyzer.TraverseGraph(graph.EntryBlock, archSize, graph, decompiler);
-        var outDelta = analyzer._outGoingDelta[graph.ExitBlock];
+        TraverseGraph(graph.EntryBlock, archSize, graph, decompiler);
+        var outDelta = _outGoingDelta[graph.ExitBlock];
 
         if (outDelta.State.Count != 0)
             decompiler.Error("Method ends with non empty stack", "Stack Analyzer");
@@ -56,7 +58,7 @@ public class StackAnalyzer
 
             foreach (var instruction in block.Instructions)
             {
-                var currentPos = (analyzer._instructionsStackState[instruction].State.Count) * archSize;
+                var currentPos = (_instructionsStackState[instruction].State.Count) * archSize;
 
                 if (instruction.OpCode == MilOpCode.ShiftStack)
                 {
@@ -80,7 +82,7 @@ public class StackAnalyzer
             {
                 var callInstruction = block.Instructions[^1];
 
-                var stackState = analyzer._instructionsStackState[callInstruction].State;
+                var stackState = _instructionsStackState[callInstruction].State;
                 var stackSize = stackState.Count * archSize;
                 for (var i = 0; i < callInstruction.Operands.Count; i++)
                 {
@@ -94,7 +96,6 @@ public class StackAnalyzer
             }
         }
 
-        Simplifier.RemoveNops(method);
         ReplaceStackWithRegisters(method);
     }
 
