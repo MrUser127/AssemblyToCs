@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using AsmResolver.DotNet.Signatures;
 using AssemblyToCs.Mil;
 
 namespace AssemblyToCs.Transforms;
@@ -25,7 +26,7 @@ public class AnalyzeStack : ITransform
     private Dictionary<Block, StackEntry> _outGoingDelta = [];
     private Dictionary<MilInstruction, StackEntry> _instructionsStackState = [];
 
-    public void Apply(Method method, Decompiler decompiler)
+    public void Apply(Method method, Decompiler decompiler, CorLibTypeFactory corLibTypes)
     {
         if (method.FlowGraph == null)
             throw new NullReferenceException("Control flow graph has not been built!");

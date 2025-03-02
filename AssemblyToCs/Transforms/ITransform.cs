@@ -1,4 +1,6 @@
-﻿namespace AssemblyToCs.Transforms;
+﻿using AsmResolver.DotNet.Signatures;
+
+namespace AssemblyToCs.Transforms;
 
 /// <summary>
 /// Transform that is applied to a method.
@@ -10,5 +12,6 @@ public interface ITransform
     /// </summary>
     /// <param name="method">The method.</param>
     /// <param name="decompiler">The decompiler.</param>
-    void Apply(Method method, Decompiler decompiler);
+    /// <param name="corLibTypes">corlib type factory.</param>
+    void Apply(Method method, Decompiler decompiler, CorLibTypeFactory corLibTypes);
 }

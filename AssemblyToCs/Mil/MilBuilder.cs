@@ -35,7 +35,7 @@ public class MilBuilder
     }
 
     /// <summary>
-    /// Unknown (optional text; it will be included in an exception).
+    /// Unknown (optional text, it will be included in an exception).
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="text">The optional message.</param>

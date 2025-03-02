@@ -1,4 +1,5 @@
-﻿using AssemblyToCs.Mil;
+﻿using AsmResolver.DotNet.Signatures;
+using AssemblyToCs.Mil;
 
 namespace AssemblyToCs.Transforms;
 
@@ -10,7 +11,7 @@ public class BuildSsa : ITransform
     private Dictionary<MilLocalVariable, Stack<MilLocalVariable>> _versions = new();
     private Dictionary<MilLocalVariable, int> _versionCount = new();
 
-    public void Apply(Method method, Decompiler decompiler)
+    public void Apply(Method method, Decompiler decompiler, CorLibTypeFactory corLibTypes)
     {
         decompiler.Info("Building SSA form...", "Build SSA");
         ReplaceRegistersWithLocals(method);
@@ -195,10 +196,20 @@ public class BuildSsa : ITransform
             }
         }
 
+        // also params
+        foreach (var parameter in method.Parameters)
+        {
+            if (parameter is MilRegister register)
+            {
+                if (!registers.Contains(register.Number))
+                    registers.Add(register.Number);
+            }
+        }
+
         // map registers to locals
         var locals = new Dictionary<int, MilLocalVariable>();
         foreach (var register in registers)
-            locals.Add(register, new MilLocalVariable($"v{register}", -1));
+            locals.Add(register, new MilLocalVariable($"v{register}", register, null, 0) { Register = register });
 
         // replace registers with locals
         foreach (var instruction in method.Instructions)
@@ -210,6 +221,13 @@ public class BuildSsa : ITransform
                 if (operand is MilRegister register)
                     instruction.Operands[i] = locals[register.Number];
             }
+        }
+
+        for (var i = 0; i < method.Parameters.Count; i++)
+        {
+            var parameter = method.Parameters[i];
+            if (parameter is MilRegister register)
+                method.Parameters[i] = locals[register.Number];
         }
     }
 
@@ -238,8 +256,9 @@ public class BuildSsa : ITransform
                     if (!_versions.ContainsKey(local))
                     {
                         _versions.Add(local, new Stack<MilLocalVariable>());
-                        _versionCount.Add(local, 1);
-                        _versions[local].Push(new MilLocalVariable($"v{local}", 0));
+                        // params are version 1
+                        _versionCount.Add(local, 2);
+                        _versions[local].Push(new MilLocalVariable($"v{local}", local.Register, null, 1));
                     }
                 }
             }

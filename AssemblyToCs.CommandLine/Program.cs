@@ -20,13 +20,14 @@ internal class Program
         public int Index = index;
     }
 
-    private static void Main(string[] args)
+    private static void Main()
     {
-        var decompiler = new Decompiler();
-
-        decompiler.InfoLog = (text, source) => Console.WriteLine($"{source} : {text}");
-        decompiler.WarnLog = (text, source) => Console.WriteLine($"{source} [Warn] : {text}");
-        decompiler.ErrorLog = (text, source) => Console.WriteLine($"{source} [Error] : {text}");
+        var decompiler = new Decompiler
+        {
+            InfoLog = (text, source) => Console.WriteLine($"{source} : {text}"),
+            WarnLog = (text, source) => Console.WriteLine($"{source} [Warn] : {text}"),
+            ErrorLog = (text, source) => Console.WriteLine($"{source} [Error] : {text}")
+        };
 
         var theAssembly = new ModuleDefinition("TheAssembly");
 
@@ -64,16 +65,16 @@ internal class Program
 
         var paramLocations = new List<object>()
         {
-            //new MilRegister(0),
-            //new MilRegister(1),
+            new MilRegister(0),
+            new MilRegister(1),
         };
 
-        var x = Reg(0);
+        /*var x = Reg(0);
         var y = Reg(1);
 
         // --- block 1
-        /*b.Move(0, x, 1);
-        b.JumpTrue(1, 4, x);
+        b.Move(0, x, 1);
+        b.JumpTrue(1, 4, true);
         // --- block 1
 
         // --- block 2
@@ -84,12 +85,13 @@ internal class Program
         // --- block 3
         b.Move(4, y, x);
         b.Add(5, y, 5);
-        b.Return(6);*/
-        // --- block 3
+        b.Return(6, y);
+        // --- block 3*/
 
         b.Move(0, Reg(2), Reg(0));
         b.Add(0, Reg(2), Reg(1));
         b.Push(0, Reg(2), 8);
+        //b.Unknown(0, "Some decompilation error/unknown instruction");
         b.Pop(0, Reg(3), 8);
         b.Call(0, Reg(2), doSomething, Reg(3));
         b.Push(0, Reg(2), 8);
@@ -142,7 +144,8 @@ internal class Program
 
             if (block == cfg.EntryBlock)
             {
-                node.WithLabel($"Entry ({block.Id})\n\nLocals:\n{string.Join("\n", method.Locals)}");
+                node.WithLabel(
+                    $"Entry ({block.Id})\nParams: {string.Join(", ", method.Parameters)}\nLocals: {string.Join(", ", method.Locals)}");
                 node.WithColor("green");
             }
             else if (block == cfg.ExitBlock)
@@ -184,7 +187,6 @@ internal class Program
             var newEdge = new DotEdge().From(from).To(to);
             edges.Add(newEdge);
             directedGraph.Add(newEdge);
-            return;
         }
 
         DotNode GetOrAddNode(int id)

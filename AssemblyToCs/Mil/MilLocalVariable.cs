@@ -1,14 +1,29 @@
-﻿namespace AssemblyToCs.Mil;
+﻿using System.Text;
+using AsmResolver.DotNet;
+using AsmResolver.DotNet.Signatures;
+
+namespace AssemblyToCs.Mil;
 
 /// <summary>
 /// Medium level IL local variable.
 /// </summary>
-public class MilLocalVariable(string name, int version) : IEquatable<MilLocalVariable>
+public class MilLocalVariable(string name, int register, TypeSignature? type, int version)
+    : IEquatable<MilLocalVariable>
 {
     /// <summary>
     /// Name of the variable.
     /// </summary>
     public string Name = name;
+
+    /// <summary>
+    /// What register was this?
+    /// </summary>
+    public int Register = register;
+
+    /// <summary>
+    /// Type of the variable (null if typeprop has not been done yet).
+    /// </summary>
+    public TypeSignature? Type = type;
 
     /// <summary>
     /// SSA version of the variable.
@@ -22,10 +37,20 @@ public class MilLocalVariable(string name, int version) : IEquatable<MilLocalVar
     /// <returns>The new variable.</returns>
     public MilLocalVariable Copy(int version)
     {
-        return new MilLocalVariable(Name, version);
+        return new MilLocalVariable(Name, Register, Type, version);
     }
 
-    public override string ToString() => Version == -1 ? Name : $"{Name}_{Version}";
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append(Name);
+        if (Version != -1)
+            sb.Append($"_{Version}");
+        if (Type != null)
+            sb.Append($" ({Type.Name})");
+        sb.Append($" (reg{Register})");
+        return sb.ToString();
+    }
 
     public static bool operator ==(MilLocalVariable left, MilLocalVariable right)
     {

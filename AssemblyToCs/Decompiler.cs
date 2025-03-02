@@ -35,8 +35,11 @@ public class Decompiler
         new MergeCallBlocks(), // initially blocks are split by calls for stack analysis
         //new RemoveRedundantAssignments(), // sometimes this works but it breaks often
         new BuildDominance(),
-        new BuildSsa() // this must be after build dominance because this uses that info
+        new BuildSsa(), // this must be after build dominance because this uses that info
+        new PropagateTypes()
     };
+
+    private MilToCilTranslator _translator = new MilToCilTranslator();
 
     /// <summary>
     /// Info log event.
@@ -85,11 +88,15 @@ public class Decompiler
 
         try
         {
+            var corLibTypes = method.Definition.Module!.CorLibTypeFactory;
+
             Info("Applying transforms...");
             foreach (var transform in Transforms)
-                transform.Apply(method, this);
+                transform.Apply(method, this, corLibTypes);
 
-            ReplaceBodyWithException(definition, "Decompilation not implemented");
+            // final translation from MIL to CIL
+            _translator.Translate(method, this, corLibTypes);
+
             Info("Low level analysis done!");
         }
         catch (Exception e)

@@ -1,4 +1,5 @@
-﻿using AssemblyToCs.Mil;
+﻿using AsmResolver.DotNet.Signatures;
+using AssemblyToCs.Mil;
 
 namespace AssemblyToCs.Transforms;
 
@@ -7,7 +8,7 @@ namespace AssemblyToCs.Transforms;
 /// </summary>
 public class RemoveNops : ITransform
 {
-    public void Apply(Method method, Decompiler decompiler)
+    public void Apply(Method method, Decompiler decompiler, CorLibTypeFactory corLibTypes)
     {
         decompiler.Info("Removing nops...", "Remove Nops");
 
