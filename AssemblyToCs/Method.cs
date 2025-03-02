@@ -28,6 +28,11 @@ public class Method(
     public List<object> Parameters = parameters;
 
     /// <summary>
+    /// Local variables of the method.
+    /// </summary>
+    public List<MilLocalVariable> Locals = [];
+
+    /// <summary>
     /// Architecture size. (4 for 32 bit and 8 for 64 bit)
     /// </summary>
     public int ArchSize = archSize;

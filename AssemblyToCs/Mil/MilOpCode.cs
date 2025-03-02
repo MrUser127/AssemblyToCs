@@ -9,6 +9,7 @@ public enum MilOpCode
     Nop,
     Move,
     ShiftStack,
+    Phi,
     Call,
     Return,
     Jump,

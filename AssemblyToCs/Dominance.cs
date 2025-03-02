@@ -50,7 +50,7 @@ public class Dominance
         dominance.CalculateImmediateDominators(cfg);
         dominance.CalculateImmediatePostDominators(cfg);
         dominance.CalculateDominanceFrontiers(cfg);
-        dominance.BuildDominanceTree(cfg);
+        dominance.BuildDominanceTree();
         return dominance;
     }
 
@@ -69,7 +69,7 @@ public class Dominance
         return false;
     }
 
-    private void BuildDominanceTree(ControlFlowGraph cfg)
+    private void BuildDominanceTree()
     {
         foreach (var block in ImmediateDominators.Keys)
         {

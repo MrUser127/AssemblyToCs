@@ -50,6 +50,41 @@ public class MilInstruction(int index, MilOpCode opCode, params object?[] operan
         }
     }
 
+    /// <summary>
+    /// Does the instruction assign a value to something?
+    /// </summary>
+    public bool IsAssignment
+    {
+        get
+        {
+            switch (OpCode)
+            {
+                case MilOpCode.Unknown:
+                case MilOpCode.Nop:
+                case MilOpCode.Call when Operands[0] == null:
+                case MilOpCode.Return:
+                case MilOpCode.Jump:
+                case MilOpCode.JumpTrue:
+                case MilOpCode.JumpFalse:
+                case MilOpCode.JumpEqual:
+                case MilOpCode.JumpGreater:
+                case MilOpCode.JumpLess:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+    }
+
+    /// <summary>
+    /// If this assigns a value to something, this is what the value is assigned to.
+    /// </summary>
+    public object? Destination
+    {
+        get => Operands[0];
+        set => Operands[0] = value;
+    }
+
     public override string ToString() => $"{Index} {OpCode} {string.Join(", ", Operands.Select(FormatOperand))}";
 
     private static string FormatOperand(object? operand)

@@ -90,13 +90,13 @@ public class MilBuilder
     /// Calls a method with args and stores the return value.
     /// </summary>
     /// <param name="index">The index.</param>
-    /// <param name="method">The method to call.</param>
     /// <param name="ret">The return value (null if void).</param>
+    /// <param name="method">The method to call.</param>
     /// <param name="args">The args for the method.</param>
-    public void Call(int index, MethodDefinition method, object? ret, params object[] args)
+    public void Call(int index, object? ret, MethodDefinition method, params object[] args)
     {
         // i can't put args directly into constructor because then it would be object[]
-        List<object?> operands = [method, ret];
+        List<object?> operands = [ret, method];
         operands.AddRange(args);
         Instructions.Add(new MilInstruction(index, MilOpCode.Call, operands.ToArray()));
     }

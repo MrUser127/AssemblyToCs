@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using AssemblyToCs.Mil;
+﻿using AssemblyToCs.Mil;
 
 namespace AssemblyToCs;
 
@@ -35,23 +34,6 @@ public class ControlFlowGraph
         Blocks = [EntryBlock, ExitBlock];
     }
 
-    private static bool TryGetBranchTargetOffset(MilInstruction instruction, out int offset)
-    {
-        offset = 0;
-
-        try
-        {
-            offset = ((MilInstruction)instruction.Operands[0]!).Index;
-            return true;
-        }
-        catch
-        {
-            // ignored
-        }
-
-        return false;
-    }
-
     /// <summary>
     /// Builds a control flow graph for a method.
     /// </summary>
@@ -80,7 +62,7 @@ public class ControlFlowGraph
                     {
                         var jumpBlock = new Block() { Id = cfg._nextId++ };
                         cfg.Blocks.Add(jumpBlock);
-                        if (TryGetBranchTargetOffset(instructions[i], out var jumpTargetIndex))
+                        if (instructions[i].Operands[0] is MilInstruction)
                             currentBlock.IsDirty = true;
                         else
                             AddDirectedEdge(currentBlock, cfg.ExitBlock);

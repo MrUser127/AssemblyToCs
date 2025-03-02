@@ -19,7 +19,8 @@ public class RemoveNops : ITransform
             {
                 // remove from instructions and CFG
                 method.Instructions.RemoveAt(i);
-                method.FlowGraph!.GetBlockByInstruction(instruction)!.Instructions.Remove(instruction);
+                if (method.FlowGraph != null)
+                    method.FlowGraph.GetBlockByInstruction(instruction)!.Instructions.Remove(instruction);
                 i--;
             }
         }

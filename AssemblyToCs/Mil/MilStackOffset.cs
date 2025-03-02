@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace AssemblyToCs.Mil;
+﻿namespace AssemblyToCs.Mil;
 
 /// <summary>
 /// Medium level IL stack offset.

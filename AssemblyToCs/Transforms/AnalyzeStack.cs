@@ -8,24 +8,16 @@ namespace AssemblyToCs.Transforms;
 /// </summary>
 public class AnalyzeStack : ITransform
 {
-    [DebuggerDisplay("Size = {Size}")]
+    [DebuggerDisplay("Size = {Count}")]
     private class StackEntry
     {
-        public Stack<bool> State = [];
+        public int Count;
 
-        public int Size => State.Count;
+        public void Push() => Count++;
 
-        public void Push(bool value) => State.Push(value);
+        public void Pop() => Count--;
 
-        public bool Pop() => State.Pop();
-
-        public StackEntry Copy()
-        {
-            var newEntry = new StackEntry();
-            foreach (var entry in State.Reverse())
-                newEntry.Push(entry);
-            return newEntry;
-        }
+        public StackEntry Copy() => new() { Count = Count };
     }
 
     private HashSet<Block> _visited = [];
@@ -35,30 +27,32 @@ public class AnalyzeStack : ITransform
 
     public void Apply(Method method, Decompiler decompiler)
     {
-        decompiler.Info("Analyzing stack...", "Stack Analyzer");
+        if (method.FlowGraph == null)
+            throw new NullReferenceException("Control flow graph has not been built!");
+        var cfg = method.FlowGraph;
 
-        var graph = method.FlowGraph!;
+        decompiler.Info("Analyzing stack...", "Stack Analyzer");
 
         _visited = [];
         _inComingDelta = [];
         _outGoingDelta = [];
         _instructionsStackState = [];
 
-        _inComingDelta[graph.EntryBlock] = new StackEntry();
+        _inComingDelta[cfg.EntryBlock] = new StackEntry();
         var archSize = method.ArchSize;
-        TraverseGraph(graph.EntryBlock, archSize, graph, decompiler);
-        var outDelta = _outGoingDelta[graph.ExitBlock];
+        TraverseGraph(cfg.EntryBlock, archSize, cfg, decompiler);
+        var outDelta = _outGoingDelta[cfg.ExitBlock];
 
-        if (outDelta.State.Count != 0)
+        if (outDelta.Count != 0)
             decompiler.Error("Method ends with non empty stack", "Stack Analyzer");
 
-        foreach (var block in graph.Blocks)
+        foreach (var block in cfg.Blocks)
         {
             MilInstruction? previousInstruction = null;
 
             foreach (var instruction in block.Instructions)
             {
-                var currentPos = (_instructionsStackState[instruction].State.Count) * archSize;
+                var currentPos = (_instructionsStackState[instruction].Count) * archSize;
 
                 if (instruction.OpCode == MilOpCode.ShiftStack)
                 {
@@ -82,8 +76,8 @@ public class AnalyzeStack : ITransform
             {
                 var callInstruction = block.Instructions[^1];
 
-                var stackState = _instructionsStackState[callInstruction].State;
-                var stackSize = stackState.Count * archSize;
+                var stackState = _instructionsStackState[callInstruction].Count;
+                var stackSize = stackState * archSize;
                 for (var i = 0; i < callInstruction.Operands.Count; i++)
                 {
                     var op = callInstruction.Operands[i];
@@ -103,7 +97,6 @@ public class AnalyzeStack : ITransform
     {
         // get all offsets (without duplicates)
         var offsets = new List<int>();
-
         foreach (var operand in method.Instructions.SelectMany(instruction => instruction.Operands))
         {
             if (operand is MilStackOffset offset)
@@ -115,7 +108,6 @@ public class AnalyzeStack : ITransform
 
         // get max register number
         var maxRegisterNumber = 0;
-
         foreach (var operand in method.Instructions.SelectMany(instruction => instruction.Operands))
         {
             if (operand is MilRegister register)
@@ -123,17 +115,10 @@ public class AnalyzeStack : ITransform
                 if (register.Number > maxRegisterNumber)
                     maxRegisterNumber = register.Number;
             }
-
-            if (operand is MilMemoryLocation memoryLocation)
-            {
-                if (memoryLocation.Register != null && memoryLocation.Register > maxRegisterNumber)
-                    maxRegisterNumber = (int)memoryLocation.Register;
-            }
         }
 
         // map offsets to registers
         var offsetToRegister = new Dictionary<int, int>();
-
         for (var i = 0; i < offsets.Count; i++)
         {
             var offset = offsets[i];
@@ -160,7 +145,7 @@ public class AnalyzeStack : ITransform
         // tail call
         if (block is { IsCall: true, Successors.Count: 1 } && block.Successors[0] == cfg.ExitBlock)
         {
-            blockDelta.State.Clear();
+            blockDelta.Count = 0;
             _outGoingDelta[block] = blockDelta;
         }
         else
@@ -182,7 +167,7 @@ public class AnalyzeStack : ITransform
                 for (var i = 0; i < Math.Abs(value / archSize); i++)
                 {
                     if (value < 0)
-                        previous.Push(true);
+                        previous.Push();
                     else
                         previous.Pop();
                 }
@@ -205,7 +190,7 @@ public class AnalyzeStack : ITransform
             {
                 var expectedDelta = _inComingDelta[succ];
 
-                if (expectedDelta.State.Count != blockDelta.State.Count)
+                if (expectedDelta.Count != blockDelta.Count)
                     decompiler.Error("Unbalanced stack", "Stack Analyzer");
 
                 _inComingDelta[succ] = blockDelta;

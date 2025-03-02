@@ -30,7 +30,6 @@ internal class Program
 
         var theAssembly = new ModuleDefinition("TheAssembly");
 
-        var importer = theAssembly.DefaultImporter;
         var corLibTypes = theAssembly.CorLibTypeFactory;
 
         var theClass = new TypeDefinition("TheNamespace", "TheClass", TypeAttributes.Class | TypeAttributes.Public);
@@ -60,21 +59,40 @@ internal class Program
         var assemblyPath = Path.Combine(workingDirectory, "TempAssembly.dll");
         theAssembly.Write(assemblyPath);
 
-        var paramLocations = new List<object>()
-        {
-            new MilRegister(0),
-            new MilRegister(1),
-        };
-
         MilRegister Reg(int i) => new MilRegister(i);
         var b = new MilBuilder();
+
+        var paramLocations = new List<object>()
+        {
+            //new MilRegister(0),
+            //new MilRegister(1),
+        };
+
+        var x = Reg(0);
+        var y = Reg(1);
+
+        // --- block 1
+        /*b.Move(0, x, 1);
+        b.JumpTrue(1, 4, x);
+        // --- block 1
+
+        // --- block 2
+        b.Move(2, x, 2);
+        b.Jump(3, 4);
+        // --- block 2
+
+        // --- block 3
+        b.Move(4, y, x);
+        b.Add(5, y, 5);
+        b.Return(6);*/
+        // --- block 3
 
         b.Move(0, Reg(2), Reg(0));
         b.Add(0, Reg(2), Reg(1));
         b.Push(0, Reg(2), 8);
         b.Pop(0, Reg(3), 8);
-        b.Call(0, doSomething, Reg(3), Reg(3));
-        b.Push(0, Reg(3), 8);
+        b.Call(0, Reg(2), doSomething, Reg(3));
+        b.Push(0, Reg(2), 8);
         b.Pop(0, Reg(5), 8);
         b.Move(0, Reg(4), Reg(5));
         b.Return(0, Reg(4));
@@ -124,7 +142,7 @@ internal class Program
 
             if (block == cfg.EntryBlock)
             {
-                node.WithLabel($"Entry ({block.Id})");
+                node.WithLabel($"Entry ({block.Id})\n\nLocals:\n{string.Join("\n", method.Locals)}");
                 node.WithColor("green");
             }
             else if (block == cfg.ExitBlock)
@@ -155,28 +173,24 @@ internal class Program
         var result = writer.GetStringBuilder().ToString();
         return result;
 
-        DotEdge GetOrAddEdge(DotNode from, DotNode to)
+        void GetOrAddEdge(DotNode from, DotNode to)
         {
             foreach (var edge in edges)
             {
                 if (edge.From == from.Identifier && edge.To == to.Identifier)
-                {
-                    return edge;
-                }
+                    return;
             }
 
             var newEdge = new DotEdge().From(from).To(to);
             edges.Add(newEdge);
             directedGraph.Add(newEdge);
-            return newEdge;
+            return;
         }
 
         DotNode GetOrAddNode(int id)
         {
             if (nodes.TryGetValue(id, out var node))
-            {
                 return node;
-            }
 
             var newNode = new DotNode().WithIdentifier(id.ToString());
             directedGraph.Add(newNode);

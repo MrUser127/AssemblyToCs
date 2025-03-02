@@ -25,6 +25,10 @@ public class RemoveRedundantAssignments : ITransform
                 var current = method.Instructions[i];
                 var next = method.Instructions[i + 1];
 
+                // don't make return register same as args
+                if (next.OpCode == MilOpCode.Call)
+                    continue;
+
                 if (current.OpCode != MilOpCode.Move) continue;
                 if (current.Operands[0] is not MilRegister moveDestRegister) continue;
                 var moveSrc = current.Operands[1];
@@ -64,11 +68,6 @@ public class RemoveRedundantAssignments : ITransform
             // it's reassigned
             if (instruction.OpCode == MilOpCode.Move && instruction.Operands[0] is MilRegister destReg &&
                 destReg == register)
-                return false;
-
-            // reassigned by return value from call
-            if (instruction.OpCode == MilOpCode.Call && instruction.Operands[1] is MilRegister retReg &&
-                retReg == register)
                 return false;
 
             // is it used?

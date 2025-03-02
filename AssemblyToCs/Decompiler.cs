@@ -31,10 +31,11 @@ public class Decompiler
         new BuildCfg(),
         new RemoveUnreachableBlocks(),
         new AnalyzeStack(),
-        new RemoveNops(), // stack analysis replaces shiftstack instructions with nops so this needs to be here
+        new RemoveNops(), // stack analysis replaces shift stack instructions with nops so this needs to be here
         new MergeCallBlocks(), // initially blocks are split by calls for stack analysis
-        new RemoveRedundantAssignments(),
-        new BuildDominance()
+        //new RemoveRedundantAssignments(), // sometimes this works but it breaks often
+        new BuildDominance(),
+        new BuildSsa() // this must be after build dominance because this uses that info
     };
 
     /// <summary>
@@ -89,7 +90,7 @@ public class Decompiler
                 transform.Apply(method, this);
 
             ReplaceBodyWithException(definition, "Decompilation not implemented");
-            Info("Done!");
+            Info("Low level analysis done!");
         }
         catch (Exception e)
         {
